@@ -1,0 +1,2 @@
+-- ARCHIVED: previous migration replaced by V1__baseline_from_schema.sql
+-- This file is kept for history but its DDL has been moved to `V1__baseline_from_schema.sql`.

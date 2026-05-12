@@ -1,0 +1,97 @@
+### Project-level ignores
+
+# Java / Maven
+/target/
+*.log
+
+# Backend config containing secrets
+/backend/src/main/resources/application.properties
+/backend/target/classes/application.properties
+
+# Backend build artifacts and migrations (built copies)
+/backend/target/
+
+# Local logs
+/backend/backend.log
+
+# Sample data (may contain plaintext passwords)
+/backend/sample_data.sql
+
+# Flyway / generated SQL (built)
+/backend/target/classes/db/
+
+# Tools (local maven settings may contain credentials)
+/tools/apache-maven-3.9.6/conf/settings.xml
+
+# Node / Frontend
+/frontend/dist/
+/frontend/.env
+/frontend/.env.*
+
+# Common secret files
+.env
+.env.*
+*.key
+*.pem
+private.key
+secrets.yml
+
+# Ignore OS files
+Thumbs.db
+.DS_Store
+git status# Java / Maven
+/target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# IntelliJ
+*.iml
+.idea/
+
+# Eclipse
+/.classpath
+/.project
+/.settings/
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+dist/
+.env
+.env.*
+
+# Logs
+*.log
+backend/backend.log
+backend/backend.err
+temp_backend/
+
+# Frontend built files
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+build/
+
+# Temporary
+tmp/
+
+# Archives
+*.zip
+*.tar.gz
+*.7z
+
+# Misc
+.history/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+``

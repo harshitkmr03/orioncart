@@ -1,0 +1,25 @@
+[2m12:09:39 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/shops[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m12:09:43 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/shops[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m12:10:17 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/products[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m12:11:12 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/shops[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m12:11:17 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/products[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m12:11:23 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/shops[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+^C

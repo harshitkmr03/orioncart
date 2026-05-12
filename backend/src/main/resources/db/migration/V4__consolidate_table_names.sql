@@ -1,0 +1,3 @@
+-- ARCHIVED: previous consolidation migration is replaced by baseline migration
+-- Kept for history only.
+-- It only renames when the target singular table does not already exist to avoid data loss.
