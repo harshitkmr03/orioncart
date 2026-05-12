@@ -118,7 +118,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKRBD7RU76UTD4UQYA6DYJJHPWS
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.417981+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK7W9QAI75UDRW8YJPPOW8VQXA" already exists; SQL statement:
 
@@ -176,7 +176,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK7W9QAI75UDRW8YJPPOW8VQXA"
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.426190+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK18TNXR5SM0ESYWY42UNOOO2JL" already exists; SQL statement:
 
@@ -234,7 +234,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK18TNXR5SM0ESYWY42UNOOO2JL
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.431511+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKJX52ACV9C5MYHF3Y1VMRUFAYB" already exists; SQL statement:
 
@@ -292,7 +292,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKJX52ACV9C5MYHF3Y1VMRUFAYB
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.436259+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK6ABE0RSIDTOC0X44B02RWYL34" already exists; SQL statement:
 
@@ -350,7 +350,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK6ABE0RSIDTOC0X44B02RWYL34
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.443533+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKQQNSJXLWLEYJBXLMM213JAJ3F" already exists; SQL statement:
 
@@ -408,7 +408,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKQQNSJXLWLEYJBXLMM213JAJ3F
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.446269+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKT4DC2R9NBVBUJRLJV3E23IIBT" already exists; SQL statement:
 
@@ -466,7 +466,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKT4DC2R9NBVBUJRLJV3E23IIBT
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.449074+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK551LOSX9J75SS5D6BFSQVIJNA" already exists; SQL statement:
 
@@ -524,7 +524,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK551LOSX9J75SS5D6BFSQVIJNA
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.451802+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKSJFS85QF6VMCURLX43CNC16GY" already exists; SQL statement:
 
@@ -582,7 +582,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKSJFS85QF6VMCURLX43CNC16GY
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.456585+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK94HGG8HLQFQFNT3DAG950VM7N" already exists; SQL statement:
 
@@ -640,7 +640,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK94HGG8HLQFQFNT3DAG950VM7N
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.458656+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKRNQ35TRXNIDC8NEIQC2GT71GH" already exists; SQL statement:
 
@@ -698,7 +698,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKRNQ35TRXNIDC8NEIQC2GT71GH
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.461956+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK4MOFTYIJ76FW0OIJNWC0JUR2B" already exists; SQL statement:
 
@@ -756,7 +756,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK4MOFTYIJ76FW0OIJNWC0JUR2B
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.466255+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK3E8APDJTPGMEXOBCBPBXIMBB6" already exists; SQL statement:
 
@@ -814,7 +814,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FK3E8APDJTPGMEXOBCBPBXIMBB6
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.469376+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKIYOF1SINDB9QIQR9O8NPJ8KLT" already exists; SQL statement:
 
@@ -872,7 +872,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKIYOF1SINDB9QIQR9O8NPJ8KLT
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.481500+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKQAKGR7LN2AOY4Q57H58JE8IDP" already exists; SQL statement:
 
@@ -930,7 +930,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKQAKGR7LN2AOY4Q57H58JE8IDP
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.485356+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKF9AMJYXPL1APT2592S4C7DW6T" already exists; SQL statement:
 
@@ -988,7 +988,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKF9AMJYXPL1APT2592S4C7DW6T
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.487443+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKK3GVHFB1EIE895YEIVQ1WOC4V" already exists; SQL statement:
 
@@ -1046,7 +1046,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKK3GVHFB1EIE895YEIVQ1WOC4V
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:17:29.490287+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKGPG3S7VUK21QUEJNVUPQDEILP" already exists; SQL statement:
 
@@ -1104,7 +1104,7 @@ org.h2.jdbc.JdbcSQLSyntaxErrorException: Constraint "FKGPG3S7VUK21QUEJNVUPQDEILP
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
 	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
-	at com.localconnect.backend.BackendApplication.main(BackendApplication.java:10)
+	at com.orioncart.backend.BackendApplication.main(BackendApplication.java:10)
 2026-05-09 01:18:15.905481+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SHOP_CATEGORIES" not found; SQL statement:
 SELECT s.* FROM shop s JOIN shop_categories sc ON s.id = sc.shop_id WHERE sc.categories = ? [42102-224]
@@ -1153,3 +1153,4 @@ SELECT s.* FROM shop s JOIN shop_categories sc ON s.id = sc.shop_id WHERE sc.cat
 2026-05-09 02:08:50.618990+05:30 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "SHOP_CATEGORIES" not found; SQL statement:
 SELECT s.* FROM shop s JOIN shop_categories sc ON s.id = sc.shop_id WHERE sc.categories = ? [42102-224]
+

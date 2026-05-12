@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to LocalConnect. This guide explains how to run the project locally and how to contribute changes.
+Thanks for your interest in contributing to orioncart. This guide explains how to run the project locally and how to contribute changes.
 
 ## Branching & PRs
 - Use feature branches with descriptive names: `feature/payment-checkout`, `fix/seeder-role`.
@@ -8,7 +8,7 @@ Thanks for your interest in contributing to LocalConnect. This guide explains ho
 - Keep changes focused and avoid unrelated refactors in the same PR.
 
 ## Coding style
-- Java: follow existing Spring Boot and project conventions (packages under `com.localconnect.backend`).
+- Java: follow existing Spring Boot and project conventions (packages under `com.orioncart.backend`).
 - Frontend: React components in `frontend/src/components` and pages in `frontend/src/pages`.
 
 ## Running locally
@@ -26,3 +26,4 @@ Thanks for your interest in contributing to LocalConnect. This guide explains ho
 
 ## Attribution
 This project was built interactively in VS Code with AI-assisted development. See `documents/PROJECT_SUMMARY.md` for details.
+

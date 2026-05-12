@@ -1,8 +1,8 @@
-﻿services:
+services:
   backend:
     build:
       context: ./backend
-    container_name: localconnect-backend
+    container_name: orioncart-backend
     environment:
       SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
@@ -13,3 +13,4 @@
       SERVER_PORT: 7070
     ports:
       - "7070:7070"
+

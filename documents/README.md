@@ -1,6 +1,6 @@
-# LocalConnect — Quickstart
+# orioncart — Quickstart
 
-This document gives quick steps to run the LocalConnect MVP (frontend + backend) locally.
+This document gives quick steps to run the orioncart MVP (frontend + backend) locally.
 
 ## Prerequisites
 - Java 21 (or use the bundled Maven/JDK tooling if available)
@@ -53,4 +53,5 @@ The backend reads these environment variables (they override `application.proper
 ## Notes
 - The `frontend` uses a Vite proxy for `/api` to the backend. If the backend port differs, update `frontend/vite.config.js` or the `server.port` in `backend/src/main/resources/application.properties`.
 - Rotate and remove any real credentials from `application.properties` before publishing this repository.
+
 

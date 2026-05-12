@@ -1,4 +1,4 @@
-# REQUIREMENTS: LocalConnect Market-Ready Transformation
+# REQUIREMENTS: orioncart Market-Ready Transformation
 **Based on:** Revised Project Strategy - Hyper-Local E-Commerce Platform  
 **Version:** 3.0 (Complete Market-Ready Specification)  
 **Last Updated:** April 6, 2026  
@@ -38,7 +38,7 @@
 
 ## EXECUTIVE SUMMARY
 
-LocalConnect is a **hyper-local marketplace platform** connecting nearby shops with customers within a configurable radius. The platform's eight core pillars are:
+orioncart is a **hyper-local marketplace platform** connecting nearby shops with customers within a configurable radius. The platform's eight core pillars are:
 
 1. **Real-time shopkeeper stock management** (Supabase WebSocket-backed)
 2. **Fast customer discovery** (geo-location, category-filtered, full-text search)
@@ -1220,7 +1220,7 @@ SMS_API_KEY=...
 
 # Frontend (Vite env vars — prefix VITE_ to expose to client)
 VITE_RAZORPAY_KEY=...          # Razorpay public key
-VITE_API_BASE_URL=...          # e.g. https://api.localconnect.in
+VITE_API_BASE_URL=...          # e.g. https://api.orioncart.in
 VITE_SENTRY_DSN=...            # client-side error tracking
 VITE_FIREBASE_API_KEY=...      # Firebase public config
 VITE_FIREBASE_PROJECT_ID=...
@@ -1276,9 +1276,9 @@ jobs:
       - name: Run Tests
         run: cd backend && mvn test
       - name: Push to Docker Registry
-        run: docker push ${{ secrets.REGISTRY }}/localconnect:latest
+        run: docker push ${{ secrets.REGISTRY }}/orioncart:latest
       - name: Deploy to Production
-        run: kubectl set image deployment/localconnect localconnect=... --record
+        run: kubectl set image deployment/orioncart orioncart=... --record
 ```
 
 ---
@@ -1293,7 +1293,7 @@ jobs:
 
 | Week | Task | Owner |
 |------|------|-------|
-| 1 | Remove `com.localconnect` legacy package duplicates | BE |
+| 1 | Remove `com.orioncart` legacy package duplicates | BE |
 | 1 | Run DB migration V13; confirm Flyway baseline | DB |
 | 1 | CORS policy + rate limiting (Bucket4j) on auth/payment endpoints | BE |
 | 1 | JWT short-expiry (15 min) + refresh token rotation | BE |
@@ -1408,13 +1408,13 @@ jobs:
 - [ ] Daily automated DB backup tested + restore drill completed
 - [ ] Incident response runbook documented (escalation path, rollback steps)
 - [ ] Support helpdesk set up (Freshdesk or similar)
-- [ ] Status page live at `status.localconnect.in`
+- [ ] Status page live at `status.orioncart.in`
 
 ---
 
 ## 14. CRITICAL FILES TO CREATE/MODIFY
 
-> Base backend path: `backend/src/main/java/com/localconnect/backend/`  
+> Base backend path: `backend/src/main/java/com/orioncart/backend/`  
 > Base frontend path: `frontend/src/`
 
 ### Backend Java Files
@@ -1598,8 +1598,8 @@ Critical endpoints to rate-limit:
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(List.of(
-        "https://localconnect.in",
-        "https://www.localconnect.in",
+        "https://orioncart.in",
+        "https://www.orioncart.in",
         "http://localhost:5173" // Vite dev server only
     ));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -1769,7 +1769,7 @@ CREATE TABLE seller_payouts (
 
 **Environment variable:**
 ```
-SUPABASE_STORAGE_BUCKET=localconnect-media
+SUPABASE_STORAGE_BUCKET=orioncart-media
 SUPABASE_STORAGE_URL=https://xxx.supabase.co/storage/v1
 ```
 
@@ -1790,7 +1790,7 @@ npm install vite-plugin-pwa
 **Capabilities to enable:**
 - Service worker: Cache static assets + last-viewed shops
 - Offline fallback page: Show cached products when offline
-- Install prompt: Show "Add LocalConnect to Home Screen" banner
+- Install prompt: Show "Add orioncart to Home Screen" banner
 - Push notifications: Integrate with FCM (Firebase Cloud Messaging) for order updates
 
 ### 18.5 Internationalization (i18n)
@@ -1913,7 +1913,7 @@ enum DisputeStatus { OPEN, SHOPKEEPER_RESPONDED, ESCALATED, RESOLVED, REJECTED }
 
 ### 21.4 Referral Program
 - Unique code per user on registration: `LC-{NAME}{4-digits}` (e.g. `LC-RAHUL4821`)
-- Share URL: `https://localconnect.in/join?ref={CODE}`
+- Share URL: `https://orioncart.in/join?ref={CODE}`
 - Referrer: +200 pts | Referee: +100 pts on first order
 - Anti-fraud cap: max 50 successful referrals per account
 
@@ -1929,7 +1929,7 @@ enum DisputeStatus { OPEN, SHOPKEEPER_RESPONDED, ESCALATED, RESOLVED, REJECTED }
 ## 22. SEO & DISCOVERABILITY
 
 ### 22.1 The SPA Challenge
-React SPAs render blank HTML to search crawlers by default. Without additional work, LocalConnect shop pages will not appear in Google results.
+React SPAs render blank HTML to search crawlers by default. Without additional work, orioncart shop pages will not appear in Google results.
 
 ### 22.2 Phase 1: React Helmet (Required at Launch)
 ```bash
@@ -1942,12 +1942,12 @@ Wrap `App.jsx` in `<HelmetProvider>`. Then per page:
 import { Helmet } from 'react-helmet-async';
 
 <Helmet>
-  <title>{shop.name} - LocalConnect | Buy Local in {shop.city}</title>
+  <title>{shop.name} - orioncart | Buy Local in {shop.city}</title>
   <meta name="description"
     content={`Shop at ${shop.name}. Browse ${shop.productCount}+ products. ${shop.distanceKm} km away.`} />
   <meta property="og:title" content={shop.name} />
   <meta property="og:image" content={shop.bannerImageUrl} />
-  <meta property="og:url" content={`https://localconnect.in/shops/${shop.id}`} />
+  <meta property="og:url" content={`https://orioncart.in/shops/${shop.id}`} />
   <meta name="twitter:card" content="summary_large_image" />
 </Helmet>
 ```
@@ -1957,11 +1957,11 @@ import { Helmet } from 'react-helmet-async';
 ### 22.3 Page-Level SEO Rules
 | Page | Title Pattern | robots |
 |------|--------------|--------|
-| HomePage | `LocalConnect - Shop Local, Delivered Fast` | index, follow |
-| DiscoveryPage | `Shops Near You - LocalConnect` | index, follow |
+| HomePage | `orioncart - Shop Local, Delivered Fast` | index, follow |
+| DiscoveryPage | `Shops Near You - orioncart` | index, follow |
 | ShopDetailsPage | `{shopName} - {category} in {city}` | index, follow |
 | ProductDetailsPage | `{productName} at {shopName}` | index, follow |
-| CheckoutPage | `Checkout - LocalConnect` | noindex |
+| CheckoutPage | `Checkout - orioncart` | noindex |
 | All Seller/Admin pages | Dashboard titles | noindex |
 
 ### 22.4 robots.txt (`frontend/public/robots.txt`)
@@ -1972,7 +1972,7 @@ Disallow: /checkout
 Disallow: /seller/
 Disallow: /admin/
 Disallow: /api/
-Sitemap: https://localconnect.in/sitemap.xml
+Sitemap: https://orioncart.in/sitemap.xml
 ```
 
 ### 22.5 Dynamic Sitemap
@@ -1990,7 +1990,7 @@ Sitemap: https://localconnect.in/sitemap.xml
 ## 23. GOOGLE DRIVE / CSV OAUTH INTEGRATION (Phase 2)
 
 ### 23.1 Overview
-Shopkeepers managing inventory in Google Sheets can authorize LocalConnect to read and auto-sync their sheet on a schedule — eliminating manual CSV export/upload.
+Shopkeepers managing inventory in Google Sheets can authorize orioncart to read and auto-sync their sheet on a schedule — eliminating manual CSV export/upload.
 
 ### 23.2 Full OAuth2 Authorization Flow
 ```
@@ -1999,7 +1999,7 @@ Step 1 — Shopkeeper clicks "Connect Google Drive"
 Step 2 — Frontend redirects to Google OAuth consent:
   GET https://accounts.google.com/o/oauth2/auth
     ?client_id={GOOGLE_CLIENT_ID}
-    &redirect_uri=https://localconnect.in/api/integrations/google/callback
+    &redirect_uri=https://orioncart.in/api/integrations/google/callback
     &response_type=code
     &scope=https://www.googleapis.com/auth/drive.readonly
     &access_type=offline
@@ -2038,7 +2038,7 @@ Step 9 — Sync job runs on schedule (Spring @Scheduled):
 ```
 GOOGLE_OAUTH_CLIENT_ID=...
 GOOGLE_OAUTH_CLIENT_SECRET=...
-GOOGLE_OAUTH_REDIRECT_URI=https://localconnect.in/api/integrations/google/callback
+GOOGLE_OAUTH_REDIRECT_URI=https://orioncart.in/api/integrations/google/callback
 TOKEN_ENCRYPTION_KEY=...    # 32-byte AES-256 key (store in secrets manager)
 ```
 
@@ -2189,7 +2189,7 @@ CREATE INDEX idx_messages_conversation ON seller_messages(conversation_id, creat
 
 ## CONCLUSION
 
-This document is the **complete, zero-gap, market-ready specification** for LocalConnect — a hyper-local e-commerce platform designed specifically for India's tier 2/3 city market.
+This document is the **complete, zero-gap, market-ready specification** for orioncart — a hyper-local e-commerce platform designed specifically for India's tier 2/3 city market.
 
 ### Platform at a Glance
 | Dimension | Count |
@@ -2231,3 +2231,4 @@ This document is the **complete, zero-gap, market-ready specification** for Loca
 **Last Updated:** April 6, 2026
 **Changes from v3.0:** Corrected fulfillment model to hyperlocal no-warehouse; added DELIVERY_AGENT role + pages; added delivery_agents + delivery_batches DB tables; rewrote COD for 3 modes; added FCM push notifications; expanded frontend to 29 pages; added Google Maps route optimization; corrected 3PL to Shiprocket Hyperlocal + Borzo.
 **Status:** Fully verified — zero gaps — approved for engineering team kickoff
+

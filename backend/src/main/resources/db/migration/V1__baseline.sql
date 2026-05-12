@@ -1,4 +1,4 @@
--- Flyway baseline migration for LocalConnect
+-- Flyway baseline migration for orioncart
 -- Add your initial schema objects here.
 
 CREATE TABLE IF NOT EXISTS app_meta (
@@ -7,3 +7,4 @@ CREATE TABLE IF NOT EXISTS app_meta (
   value_text TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
 );
+

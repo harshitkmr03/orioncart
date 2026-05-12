@@ -1,4 +1,4 @@
-# LocalConnect: Market Readiness Suggestions
+# orioncart: Market Readiness Suggestions
 
 > **Goal**: Transform the current development project into a production-ready e-commerce application suitable for real users.
 
@@ -153,3 +153,4 @@
 ---
 
 > **Note**: This document should be updated as issues are resolved. Use the checkbox notation (`[x]`) to track progress.
+

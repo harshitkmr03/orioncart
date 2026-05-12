@@ -1,6 +1,6 @@
 # Security Setup and Secret Rotation
 
-This document describes recommended steps for secret management and JWT secret rotation for the LocalConnect project.
+This document describes recommended steps for secret management and JWT secret rotation for the orioncart project.
 
 1) Store secrets securely
   - Use a dedicated secret store such as Azure Key Vault, AWS Secrets Manager, or GitHub Actions Secrets for CI/CD.
@@ -59,7 +59,7 @@ The `backend/src/main/resources/application.properties` file should reference en
 
 ```properties
 # Database
-spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/localconnect}
+spring.datasource.url=${DB_URL:jdbc:postgresql://localhost:5432/orioncart}
 spring.datasource.username=${DB_USERNAME:postgres}
 spring.datasource.password=${DB_PASSWORD:password}
 
@@ -163,3 +163,4 @@ openssl rand -base64 32
 Notes:
 - Avoid storing `JWT_SECRET` in any committed file. Use `.env` only for local developer convenience and add it to `.gitignore`.
 - After updating secrets in CI, trigger a deploy to pick up the new secret and verify application logs for successful startup.
+

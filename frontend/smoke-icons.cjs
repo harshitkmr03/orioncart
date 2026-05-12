@@ -13,7 +13,7 @@ const { chromium } = require('@playwright/test');
 
   try {
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
-    await page.waitForSelector('text=LocalConnect', { timeout: 15000 });
+    await page.waitForSelector('text=orioncart', { timeout: 15000 });
     record('Home page loads', true);
 
     await page.locator('button:has(.lucide-shopping-cart)').first().click({ timeout: 10000 });
@@ -92,3 +92,4 @@ const { chromium } = require('@playwright/test');
   console.log(JSON.stringify({ total: results.length, passed: results.length - failed.length, failed: failed.length, failures: failed }, null, 2));
   process.exit(failed.length ? 1 : 0);
 })();
+

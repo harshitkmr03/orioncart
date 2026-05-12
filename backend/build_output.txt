@@ -1,6 +1,6 @@
-﻿[INFO] Scanning for projects...
+[INFO] Scanning for projects...
 [INFO] 
-[INFO] ----------------------< com.localconnect:backend >----------------------
+[INFO] ----------------------< com.orioncart:backend >----------------------
 [INFO] Building backend 3.2.3
 [INFO]   from pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
@@ -23,8 +23,8 @@
   processing is enabled explicitly (-proc:only, -proc:full).
   Use -Xlint:-options to suppress this message.
   Use -proc:none to disable annotation processing.
-[INFO] /E:/Project/backend/src/main/java/com/localconnect/service/BulkUploadService.java: E:\Project\backend\src\main\java\com\localconnect\service\BulkUploadService.java uses or overrides a deprecated API.
-[INFO] /E:/Project/backend/src/main/java/com/localconnect/service/BulkUploadService.java: Recompile with -Xlint:deprecation for details.
+[INFO] /E:/Project/backend/src/main/java/com/orioncart/service/BulkUploadService.java: E:\Project\backend\src\main\java\com\orioncart\service\BulkUploadService.java uses or overrides a deprecated API.
+[INFO] /E:/Project/backend/src/main/java/com/orioncart/service/BulkUploadService.java: Recompile with -Xlint:deprecation for details.
 [INFO] 
 [INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
 [INFO] skip non existing resourceDirectory E:\Project\backend\src\test\resources
@@ -46,39 +46,39 @@
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
-[INFO] Running com.localconnect.controller.DiscoveryControllerTest
+[INFO] Running com.orioncart.controller.DiscoveryControllerTest
 21:40:21.935 [main] INFO org.hibernate.validator.internal.util.Version -- HV000001: Hibernate Validator 8.0.1.Final
 21:40:25.303 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
 21:40:25.303 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
 21:40:25.317 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 11 ms
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.06 s -- in com.localconnect.controller.DiscoveryControllerTest
-[INFO] Running com.localconnect.controller.LibraryControllerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.06 s -- in com.orioncart.controller.DiscoveryControllerTest
+[INFO] Running com.orioncart.controller.LibraryControllerTest
 21:40:26.549 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
 21:40:26.549 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
 21:40:26.550 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.425 s -- in com.localconnect.controller.LibraryControllerTest
-[INFO] Running com.localconnect.controller.OrderControllerTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.425 s -- in com.orioncart.controller.LibraryControllerTest
+[INFO] Running com.orioncart.controller.OrderControllerTest
 21:40:26.969 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
 21:40:26.969 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
 21:40:26.969 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
 21:40:27.264 [main] INFO org.springframework.mock.web.MockServletContext -- Initializing Spring TestDispatcherServlet ''
 21:40:27.264 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Initializing Servlet ''
 21:40:27.264 [main] INFO org.springframework.test.web.servlet.TestDispatcherServlet -- Completed initialization in 0 ms
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.547 s -- in com.localconnect.controller.OrderControllerTest
-[INFO] Running com.localconnect.service.BulkUploadServiceTest
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.090 s -- in com.localconnect.service.BulkUploadServiceTest
-[INFO] Running com.localconnect.service.DiscoveryServiceTest
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.699 s -- in com.localconnect.service.DiscoveryServiceTest
-[INFO] Running com.localconnect.service.MasterProductServiceTest
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.370 s -- in com.localconnect.service.MasterProductServiceTest
-[INFO] Running com.localconnect.service.OrderServiceTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.263 s -- in com.localconnect.service.OrderServiceTest
-[INFO] Running com.localconnect.service.PaymentProviderStubTest
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.234 s -- in com.localconnect.service.PaymentProviderStubTest
-[INFO] Running com.localconnect.service.PaymentServiceTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.250 s -- in com.localconnect.service.PaymentServiceTest
-[INFO] Running com.localconnect.service.WebhookQueueServiceTest
-[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.176 s -- in com.localconnect.service.WebhookQueueServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.547 s -- in com.orioncart.controller.OrderControllerTest
+[INFO] Running com.orioncart.service.BulkUploadServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.090 s -- in com.orioncart.service.BulkUploadServiceTest
+[INFO] Running com.orioncart.service.DiscoveryServiceTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.699 s -- in com.orioncart.service.DiscoveryServiceTest
+[INFO] Running com.orioncart.service.MasterProductServiceTest
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.370 s -- in com.orioncart.service.MasterProductServiceTest
+[INFO] Running com.orioncart.service.OrderServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.263 s -- in com.orioncart.service.OrderServiceTest
+[INFO] Running com.orioncart.service.PaymentProviderStubTest
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.234 s -- in com.orioncart.service.PaymentProviderStubTest
+[INFO] Running com.orioncart.service.PaymentServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.250 s -- in com.orioncart.service.PaymentServiceTest
+[INFO] Running com.orioncart.service.WebhookQueueServiceTest
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.176 s -- in com.orioncart.service.WebhookQueueServiceTest
 [INFO] 
 [INFO] Results:
 [INFO] 
@@ -93,11 +93,12 @@
 [INFO] The original artifact has been renamed to E:\Project\backend\target\backend-3.2.3.jar.original
 [INFO] 
 [INFO] --- install:3.1.1:install (default-install) @ backend ---
-[INFO] Installing E:\Project\backend\pom.xml to C:\Users\Admin\.m2\repository\com\localconnect\backend\3.2.3\backend-3.2.3.pom
-[INFO] Installing E:\Project\backend\target\backend-3.2.3.jar to C:\Users\Admin\.m2\repository\com\localconnect\backend\3.2.3\backend-3.2.3.jar
+[INFO] Installing E:\Project\backend\pom.xml to C:\Users\Admin\.m2\repository\com\orioncart\backend\3.2.3\backend-3.2.3.pom
+[INFO] Installing E:\Project\backend\target\backend-3.2.3.jar to C:\Users\Admin\.m2\repository\com\orioncart\backend\3.2.3\backend-3.2.3.jar
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
 [INFO] Total time:  01:08 min
 [INFO] Finished at: 2026-01-15T21:40:38+05:30
 [INFO] ------------------------------------------------------------------------
+

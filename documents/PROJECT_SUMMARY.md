@@ -1,7 +1,7 @@
-# Project Summary — LocalConnect (MVP)
+# Project Summary — orioncart (MVP)
 
 ## Overview
-LocalConnect is a small e-commerce demo application (MVP) composed of a React + Vite frontend and a Spring Boot backend. The app demonstrates a product listing, cart, checkout and a simulated server-side payment flow, along with JWT-based authentication.
+orioncart is a small e-commerce demo application (MVP) composed of a React + Vite frontend and a Spring Boot backend. The app demonstrates a product listing, cart, checkout and a simulated server-side payment flow, along with JWT-based authentication.
 
 ## Architecture
 - **Frontend:** React + Vite, Tailwind CSS, `frontend/src/services` contains API helpers. The frontend runs on Vite dev server (default `http://localhost:5173`) and proxies `/api` to the backend.
@@ -78,3 +78,4 @@ $env:SPRING_DATASOURCE_PASSWORD=''
 ---
 
 (End of project summary)
+
