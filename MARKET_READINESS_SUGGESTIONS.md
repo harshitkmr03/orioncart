@@ -9,7 +9,7 @@
 ### 1. Security Hardening
 | Issue | Current State | Recommendation |
 |-------|---------------|----------------|
-| **Hardcoded Secrets** | JWT secrets and DB credentials in `application.properties` | Move ALL secrets to environment variables or a secret manager (e.g., AWS Secrets Manager, HashiCorp Vault) |
+| **Hardcoded Secrets** | [x] Fixed | Moved to environment variables and removed defaults from code |
 | **JWT Secret Rotation** | Static secret, likely weak | Generate a strong 256-bit secret; implement rotation strategy |
 | **CORS Configuration** | Likely permissive (`*`) | Restrict to specific frontend domains |
 | **Input Validation** | Minimal validation on API endpoints | Add `@Valid` annotations and custom validators for all DTOs |
@@ -39,7 +39,7 @@
 |---------|--------|-----------------|
 | Product CRUD | ✅ Created | Verify all endpoints work with Supabase |
 | Order Management | Partial | Add `GET /api/orders/{id}`, order status updates, cancellation |
-| Delete Product | Missing handler | Wire up frontend delete button to `DELETE /api/products/{id}` |
+| Delete Product | [x] Implemented | Wired up frontend delete button to `DELETE /api/products/{id}` |
 | Shop Management | Hardcoded Shop ID | Implement proper shop-user relationship |
 
 ### 5. Frontend Functionality Fixes
@@ -47,7 +47,7 @@
 |-----------|-------|-----|
 | **Seller Dashboard** | Add/Update product not saving | Debug API payload; ensure `shop.id` is correctly sent |
 | **Quick Stock Control** | +/- buttons don't persist | Verify `PUT /api/products/{id}` payload matches backend expectations |
-| **Delete Button** | Non-functional | Add `onClick` handler calling `api.deleteProduct(id)` |
+| **Delete Button** | [x] Functional | Wired up in SellerDashboard and verified in `productAPI` |
 | **Cart Persistence** | Works via localStorage | Consider syncing with backend for logged-in users |
 
 ### 6. Error Handling & UX
@@ -105,7 +105,7 @@
 | Area | Recommendation |
 |------|----------------|
 | **Containerization** | Docker images for backend; Vercel/Netlify for frontend |
-| **CI/CD Pipeline** | GitHub Actions for automated builds, tests, and deployments |
+| **CI/CD Pipeline** | [x] Implemented | GitHub Actions for automated builds and tests |
 | **Environment Separation** | Separate Dev, Staging, Production environments |
 | **Blue-Green Deployment** | Zero-downtime deployments |
 
