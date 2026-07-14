@@ -1,3 +1,0 @@
--- ARCHIVED: previous merge migration replaced by baseline migration
--- Kept for history only.
--- does not already have a row with the same id. It then advances the target sequence to avoid id collisions.
