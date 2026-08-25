@@ -22,7 +22,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class LoyaltyService {
     private static final String TIER_BRONZE = "BRONZE";
     private static final String ORDER_EARN = "ORDER_EARN";
@@ -55,7 +58,6 @@ public class LoyaltyService {
             points.setLifetimePoints(0);
             points.setTier(TIER_BRONZE);
             points.setUpdatedAt(LocalDateTime.now());
-            syncUserTier(user, TIER_BRONZE);
             return loyaltyPointsRepository.save(points);
         });
     }
@@ -170,7 +172,7 @@ public class LoyaltyService {
         }
 
         LoyaltyPoints balance = getOrCreateBalance(userId);
-        int earnedPoints = (int) Math.floor(Math.max(0, order.getTotalAmount()) / 100.0) * 10;
+        int earnedPoints = (int) Math.floor(Math.max(0.0, order.getTotalAmount()) / 100.0) * 10;
         if (earnedPoints > 0) {
             addPoints(balance, earnedPoints, ORDER_EARN, order.getId(), "Order reward for order #" + order.getId());
         }
@@ -215,15 +217,14 @@ public class LoyaltyService {
     }
 
     private LoyaltyPoints getOrCreateBalance(Long userId) {
-        return loyaltyPointsRepository.findByUser_Id(userId).orElseGet(() -> {
+        return loyaltyPointsRepository.findByUserIdForUpdate(userId).orElseGet(() -> {
             User user = findUser(userId);
             LoyaltyPoints points = new LoyaltyPoints();
             points.setUser(user);
             points.setPointsBalance(0);
             points.setLifetimePoints(0);
-            points.setTier(user.getLoyaltyTier() == null ? TIER_BRONZE : user.getLoyaltyTier().toUpperCase(Locale.ROOT));
+            points.setTier(TIER_BRONZE);
             points.setUpdatedAt(LocalDateTime.now());
-            syncUserTier(user, points.getTier());
             return loyaltyPointsRepository.save(points);
         });
     }
@@ -234,7 +235,6 @@ public class LoyaltyService {
         balance.setTier(resolveTier(safeInt(balance.getLifetimePoints())));
         balance.setUpdatedAt(LocalDateTime.now());
         loyaltyPointsRepository.save(balance);
-        syncUserTier(balance.getUser(), balance.getTier());
         createTransaction(balance.getUser(), delta, transactionType, referenceId, description);
     }
 
@@ -281,13 +281,7 @@ public class LoyaltyService {
         return TIER_BRONZE;
     }
 
-    private void syncUserTier(User user, String tier) {
-        if (user == null) {
-            return;
-        }
-        user.setLoyaltyTier(tier);
-        userRepository.save(user);
-    }
+
 
     private User findUser(Long userId) {
         return userRepository.findById(userId)

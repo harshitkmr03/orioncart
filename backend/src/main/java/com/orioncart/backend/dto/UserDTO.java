@@ -2,12 +2,12 @@ package com.orioncart.backend.dto;
 
 public class UserDTO {
     private Long id;
-    private String username;
+    @com.fasterxml.jackson.annotation.JsonAlias({"username", "email"})
+    private String email;
     private String name;
     private String role;
     private String shopName;
     private String referralCode;
-    private String loyaltyTier;
 
     public Long getId() {
         return id;
@@ -17,12 +17,20 @@ public class UserDTO {
         this.id = id;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getUsername() {
-        return username;
+        return email;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.email = username;
     }
 
     public String getName() {
@@ -57,12 +65,5 @@ public class UserDTO {
         this.referralCode = referralCode;
     }
 
-    public String getLoyaltyTier() {
-        return loyaltyTier;
-    }
-
-    public void setLoyaltyTier(String loyaltyTier) {
-        this.loyaltyTier = loyaltyTier;
-    }
 }
 

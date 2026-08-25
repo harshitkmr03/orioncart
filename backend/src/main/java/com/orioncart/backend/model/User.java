@@ -11,7 +11,8 @@ public class User {
     private Long id;
 
     @Column(name = "email", unique = true, nullable = false)
-    private String username;
+    @com.fasterxml.jackson.annotation.JsonAlias({"username", "email"})
+    private String email;
 
     @Column(nullable = false)
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
@@ -32,8 +33,6 @@ public class User {
     @Column(name = "referral_code", unique = true)
     private String referralCode;
 
-    @Column(name = "loyalty_tier")
-    private String loyaltyTier;
 
     @Transient
     private String referredByCode;
@@ -71,12 +70,20 @@ public class User {
         this.id = id;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getUsername() {
-        return username;
+        return email;
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.email = username;
     }
 
     public String getPassword() {
@@ -127,13 +134,6 @@ public class User {
         this.referralCode = referralCode;
     }
 
-    public String getLoyaltyTier() {
-        return loyaltyTier;
-    }
-
-    public void setLoyaltyTier(String loyaltyTier) {
-        this.loyaltyTier = loyaltyTier;
-    }
 
     public String getReferredByCode() {
         return referredByCode;

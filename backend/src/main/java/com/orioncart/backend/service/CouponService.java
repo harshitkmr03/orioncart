@@ -15,7 +15,10 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class CouponService {
 
     @Autowired
@@ -109,7 +112,7 @@ public class CouponService {
             return;
         }
 
-        couponRepository.findByCodeIgnoreCase(code.trim()).ifPresent(coupon -> {
+        couponRepository.findByCodeForUpdate(code.trim()).ifPresent(coupon -> {
             coupon.setCurrentUses((coupon.getCurrentUses() == null ? 0 : coupon.getCurrentUses()) + 1);
             couponRepository.save(coupon);
         });

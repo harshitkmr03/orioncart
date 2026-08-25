@@ -41,9 +41,9 @@ public class DataSeeder implements CommandLineRunner {
                 org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
 
                 // Upsert seller
-                User seller = userRepository.findByUsername("seller").orElseGet(() -> {
+                User seller = userRepository.findByEmail("seller").orElseGet(() -> {
                         User u = new User();
-                        u.setUsername("seller");
+                        u.setEmail("seller");
                         u.setRole(User.Role.SHOPKEEPER);
                         return u;
                 });
@@ -51,9 +51,9 @@ public class DataSeeder implements CommandLineRunner {
                 userRepository.save(seller);
 
                 // Upsert buyer
-                User buyer = userRepository.findByUsername("buyer").orElseGet(() -> {
+                User buyer = userRepository.findByEmail("buyer").orElseGet(() -> {
                         User u = new User();
-                        u.setUsername("buyer");
+                        u.setEmail("buyer");
                         u.setRole(User.Role.CUSTOMER);
                         return u;
                 });

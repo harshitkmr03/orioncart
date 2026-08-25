@@ -12,8 +12,7 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
     /** Returns ALL shops owned by a given user (a seller can have multiple shops). */
     List<Shop> findByOwnerId(Long ownerId);
 
-    // Supabase schema stores categories in a separate table `shop_categories`.
-    @Query(value = "SELECT s.* FROM shop s JOIN shop_categories sc ON s.id = sc.shop_id WHERE sc.categories = :category", nativeQuery = true)
+    @Query(value = "SELECT s.* FROM shop s WHERE LOWER(s.category) = LOWER(:category)", nativeQuery = true)
     List<Shop> findByCategory(@Param("category") String category);
 
     // Find nearby shops using Haversine formula (distance in km) — avoids requiring PostGIS.

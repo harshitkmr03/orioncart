@@ -18,7 +18,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         e.preventDefault();
         try {
             if (isLogin) {
-                const credentials = { username: formData.email, password: formData.password };
+                const credentials = { email: formData.email, username: formData.email, password: formData.password };
                 const resp = await authAPI.login(credentials);
                 // resp contains { token, user }
                 if (resp.token) {
@@ -35,6 +35,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                 }
             } else {
                 const userData = {
+                    email: formData.email,
                     username: formData.email,
                     password: formData.password,
                     name: formData.name,
@@ -44,7 +45,7 @@ const AuthModal = ({ isOpen, onClose }) => {
                 const registeredUser = await authAPI.register(userData);
                 // After successful registration, auto-login
                 try {
-                    const credentials = { username: formData.email, password: formData.password };
+                    const credentials = { email: formData.email, username: formData.email, password: formData.password };
                     const resp = await authAPI.login(credentials);
                     if (resp.token) {
                         localStorage.setItem('authToken', resp.token);
@@ -59,9 +60,9 @@ const AuthModal = ({ isOpen, onClose }) => {
                         window.dispatchEvent(new CustomEvent('authChanged', { detail: { user: resp.user || registeredUser, token: resp.token } }));
                     } catch (e) {}
                 } catch (e) {
-                    // If auto-login failed, still store registered user and prompt login
-                    localStorage.setItem('user', JSON.stringify(registeredUser));
-                    console.warn('Auto-login after registration failed', e);
+                    console.warn('Auto-login after registration failed, prompting manual login:', e);
+                    setIsLogin(true);
+                    alert('Registration successful! Please log in with your credentials.');
                 }
             }
             onClose();

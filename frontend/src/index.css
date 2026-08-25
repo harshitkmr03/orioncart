@@ -2,20 +2,11 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-  @layer components {
-    .btn-primary {
-      @apply px-6 py-2.5 bg-primary text-white rounded-full hover:bg-indigo-600 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 font-medium flex items-center justify-center gap-2;
-    }
-  }
 
-  /* hero video helpers */
-  .hero-video { display: block; }
-
-  .hero-video.opacity-0 { opacity: 0; }
-  .hero-video.opacity-100 { opacity: 1; }
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* hero video helpers */
+.hero-video { display: block; }
+.hero-video.opacity-0 { opacity: 0; }
+.hero-video.opacity-100 { opacity: 1; }
 
 @layer base {
   body {

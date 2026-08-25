@@ -51,7 +51,7 @@ public class OrderController {
                         // Attach authenticated user as customer
                         order.setCustomer(user);
                         Order created = orderService.createOrder(order);
-                        return ResponseEntity.ok(orderMapper.toDTO(created));
+                        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(orderMapper.toDTO(created));
                     } catch (Exception ex) {
                         log.error("Failed to create order for user {}: {}", user.getId(), ex.getMessage(), ex);
                         return ResponseEntity.status(500).body(Map.of("message", "Failed to create order", "detail", ex.getMessage()));

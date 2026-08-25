@@ -21,11 +21,11 @@ public class UserService {
 
     public User registerUser(User user) {
         // Validate required fields
-        if (user.getUsername() == null || user.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Email (username) is required");
+        if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+            throw new IllegalArgumentException("Email is required");
         }
-        // Check duplicate username/email
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+        // Check duplicate email
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new IllegalArgumentException("An account with that email already exists");
         }
         // Ensure a role is set; default to CUSTOMER if not provided
@@ -37,7 +37,6 @@ public class UserService {
         if (user.getPhoneVerified() == null) {
             user.setPhoneVerified(false);
         }
-        user.setLoyaltyTier("BRONZE");
         user.setReferralCode(generateReferralCode(user.getName()));
         // Hash password before saving
         if (user.getPassword() != null && !user.getPassword().isEmpty()) {
@@ -50,9 +49,9 @@ public class UserService {
         return saved;
     }
 
-    public Optional<User> login(String username, String password) {
+    public Optional<User> login(String email, String password) {
         // In a real app, use BCrypt and JWT. For this demo, simple plain text check.
-        Optional<User> user = userRepository.findByUsername(username);
+        Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent()) {
             String storedHash = user.get().getPassword();
             if (storedHash != null && passwordEncoder.matches(password, storedHash)) {

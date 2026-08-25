@@ -25,7 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class ProductService {
     private static final Logger log = LoggerFactory.getLogger(ProductService.class);
     private static final int DEFAULT_LOW_STOCK_THRESHOLD = 5;
@@ -64,7 +67,7 @@ public class ProductService {
         if (quantity < 0) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stock quantity cannot be negative");
         }
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findByIdForUpdate(productId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
         int previousStock = product.getStockQuantity();
         log.info("Updating stock for product id {} to {}", productId, quantity);

@@ -120,6 +120,10 @@ export default function PaymentPage({ items = [], clearCart }) {
 
         setProcessingPayment(true);
         try {
+            // NOTE: In production, the backend MUST independently recalculate all monetary
+            // values (subtotal, tax, delivery charge, discount, total) from the cart item IDs
+            // and quantities rather than trusting these client-provided amounts.
+            // This is a known MVP limitation — see Future Roadmap in README.md.
             const orderData = {
                 items: cartItems.map((item) => ({
                     product: { id: item.id },

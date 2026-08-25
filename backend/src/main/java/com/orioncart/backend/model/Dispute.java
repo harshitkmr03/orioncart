@@ -1,8 +1,9 @@
 package com.orioncart.backend.model;
 
+import com.orioncart.backend.converter.StringListConverter;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "disputes")
@@ -27,8 +28,9 @@ public class Dispute {
 
     private String description;
 
-    @Column(name = "evidence_image_urls")
-    private String evidenceImageUrls;
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "evidence_image_urls", columnDefinition = "TEXT")
+    private List<String> evidenceImageUrls;
 
     private String status;
 
@@ -98,11 +100,11 @@ public class Dispute {
         this.description = description;
     }
 
-    public String getEvidenceImageUrls() {
+    public List<String> getEvidenceImageUrls() {
         return evidenceImageUrls;
     }
 
-    public void setEvidenceImageUrls(String evidenceImageUrls) {
+    public void setEvidenceImageUrls(List<String> evidenceImageUrls) {
         this.evidenceImageUrls = evidenceImageUrls;
     }
 

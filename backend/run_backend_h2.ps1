@@ -1,4 +1,4 @@
-$env:SPRING_DATASOURCE_URL = 'jdbc:h2:file:./data/orioncart_db;AUTO_SERVER=TRUE'
+$env:SPRING_DATASOURCE_URL = 'jdbc:h2:file:./data/orioncart_db;AUTO_SERVER=TRUE;MODE=PostgreSQL'
 $env:SPRING_DATASOURCE_USERNAME = 'sa'
 $env:SPRING_DATASOURCE_PASSWORD = ''
 $env:SPRING_JPA_HIBERNATE_DDL_AUTO = 'update'

@@ -22,7 +22,6 @@ public class Order {
     private double totalAmount;
 
     @Column(name = "fulfillment_type")
-    @Enumerated(EnumType.STRING)
     private DeliveryMethod fulfillmentType;
 
     @Column(name = "delivery_address")
@@ -69,10 +68,16 @@ public class Order {
 
     private String note;
 
+    @Column(name = "payment_method")
+    private String paymentMethod; // COD, UPI, CARD
+
+    @Column(name = "payment_status")
+    private String paymentStatus; // PENDING, PAID, FAILED
+
     @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> items;
 
     public enum OrderStatus {
@@ -261,6 +266,22 @@ public class Order {
 
     public void setNote(String note) {
         this.note = note;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
+    }
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public OrderStatus getStatus() {

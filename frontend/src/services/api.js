@@ -425,26 +425,19 @@ export const paymentAPI = {
         const headers = { 'Content-Type': 'application/json' };
         if (token) headers['X-Auth-Token'] = token;
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/payments/cod`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify(codPayload),
-            });
+        const response = await fetch(`${API_BASE_URL}/payments/cod`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(codPayload),
+        });
 
-            if (!response.ok) {
-                let text = await response.text();
-                try { text = JSON.parse(text); } catch (e) { }
-                const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'COD order failed');
-                throw new Error(msg);
-            }
-            return response.json();
-        } catch (err) {
-            // Fallback: if the backend endpoint doesn't exist yet, use dummy
-            console.warn('[PaymentAPI] COD backend unavailable, using dummy fallback:', err.message);
-            await new Promise((resolve) => setTimeout(resolve, DUMMY_PAYMENT_DELAY_MS));
-            return dummyOrderResponse({ method: 'COD' });
+        if (!response.ok) {
+            let text = await response.text();
+            try { text = JSON.parse(text); } catch (e) { }
+            const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'COD order failed');
+            throw new Error(msg);
         }
+        return response.json();
     },
 };
 

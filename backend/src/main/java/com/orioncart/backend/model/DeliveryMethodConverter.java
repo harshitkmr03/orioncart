@@ -22,6 +22,7 @@ public class DeliveryMethodConverter implements AttributeConverter<Order.Deliver
             case "SCHEDULED":
                 return Order.DeliveryMethod.SCHEDULED;
             case "AGENT":
+            case "EXPRESS": // legacy value -> mapped to AGENT
             case "DELIVERY": // legacy synonym
                 return Order.DeliveryMethod.AGENT;
             default:

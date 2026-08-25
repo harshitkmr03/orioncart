@@ -7,8 +7,11 @@ import com.orioncart.backend.service.DeliveryService;
 import com.orioncart.backend.service.SellerInsightsService;
 import com.orioncart.backend.service.ShopService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+import com.orioncart.backend.service.AuthService;
 import java.util.List;
 import java.time.LocalDate;
 
@@ -21,6 +24,9 @@ public class ShopController {
     private ShopService shopService;
 
     @Autowired
+    private AuthService authService;
+
+    @Autowired
     private DeliveryService deliveryService;
 
     @Autowired
@@ -28,22 +34,34 @@ public class ShopController {
 
     /** Create a shop (no specific owner — admin use or legacy). */
     @PostMapping
-    public Shop createShop(@RequestBody Shop shop) {
+    @ResponseStatus(org.springframework.http.HttpStatus.CREATED)
+    public Shop createShop(@RequestHeader(value = "X-Auth-Token", required = false) String token, @RequestBody Shop shop) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         return shopService.createShop(shop);
     }
 
     /** Create a new shop owned by the given user. A user may own multiple shops. */
     @PostMapping("/owner/{userId}")
     public ResponseEntity<Shop> createShopForOwner(
+            @RequestHeader(value = "X-Auth-Token", required = false) String token,
             @PathVariable("userId") Long userId,
             @RequestBody Shop shop) {
-        return ResponseEntity.ok(shopService.createShopForOwner(shop, userId));
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
+        return ResponseEntity.status(org.springframework.http.HttpStatus.CREATED).body(shopService.createShopForOwner(shop, userId));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Shop> updateShop(
+            @RequestHeader(value = "X-Auth-Token", required = false) String token,
             @PathVariable("id") Long id,
             @RequestBody Shop updateData) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         try {
             return ResponseEntity.ok(shopService.updateShop(id, updateData));
         } catch (IllegalArgumentException ex) {
@@ -52,7 +70,10 @@ public class ShopController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteShop(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteShop(@RequestHeader(value = "X-Auth-Token", required = false) String token, @PathVariable("id") Long id) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         shopService.deleteShop(id);
         return ResponseEntity.noContent().build();
     }

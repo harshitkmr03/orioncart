@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Transactional
 public class DisputeService {
 
     @Autowired
@@ -70,7 +73,7 @@ public class DisputeService {
         dispute.setShop(shop);
         dispute.setReason(request.getReason().trim());
         dispute.setDescription(request.getDescription() == null ? null : request.getDescription().trim());
-        dispute.setEvidenceImageUrls(joinEvidence(request.getEvidenceImageUrls()));
+        dispute.setEvidenceImageUrls(request.getEvidenceImageUrls());
         dispute.setStatus("OPEN");
         dispute.setRefundIssued(false);
         dispute.setRaisedAt(LocalDateTime.now());
@@ -123,7 +126,7 @@ public class DisputeService {
                 dispute.getShop() != null ? dispute.getShop().getName() : null,
                 dispute.getReason(),
                 dispute.getDescription(),
-                splitEvidence(dispute.getEvidenceImageUrls()),
+                dispute.getEvidenceImageUrls(),
                 dispute.getStatus(),
                 dispute.getShopkeeperResponse(),
                 dispute.getRefundIssued(),

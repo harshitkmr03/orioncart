@@ -6,6 +6,7 @@ import com.orioncart.backend.dto.QuickStockUpdateRequest;
 import com.orioncart.backend.model.Product;
 import com.orioncart.backend.service.DiscoveryService;
 import com.orioncart.backend.service.ProductService;
+import com.orioncart.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
@@ -24,10 +25,17 @@ public class ProductController {
     private ProductService productService;
 
     @Autowired
+    private AuthService authService;
+
+    @Autowired
     private DiscoveryService discoveryService;
 
     @PostMapping
-    public Product addProduct(@RequestBody Product product) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public Product addProduct(@RequestHeader(value = "X-Auth-Token", required = false) String token, @RequestBody Product product) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         return productService.addProduct(product);
     }
 
@@ -62,31 +70,47 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable("id") Long id, @RequestBody Product product) {
+    public ResponseEntity<Product> updateProduct(@RequestHeader(value = "X-Auth-Token", required = false) String token, @PathVariable("id") Long id, @RequestBody Product product) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         return ResponseEntity.ok(productService.updateProduct(id, product));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteProduct(@RequestHeader(value = "X-Auth-Token", required = false) String token, @PathVariable("id") Long id) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping(value = "/bulk-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ProductBulkUploadResult bulkUpload(
+            @RequestHeader(value = "X-Auth-Token", required = false) String token,
             @RequestParam("file") MultipartFile file,
             @RequestParam("shopId") Long shopId
     ) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         return productService.processBulkUpload(file, shopId);
     }
 
     @PutMapping("/{id}/stock")
-    public Product updateStock(@PathVariable("id") Long id, @RequestParam int quantity) {
+    public Product updateStock(@RequestHeader(value = "X-Auth-Token", required = false) String token, @PathVariable("id") Long id, @RequestParam int quantity) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         return productService.updateStock(id, quantity);
     }
 
     @PutMapping("/{id}/quick-stock-update")
-    public Product quickUpdateStock(@PathVariable("id") Long id, @RequestBody QuickStockUpdateRequest request) {
+    public Product quickUpdateStock(@RequestHeader(value = "X-Auth-Token", required = false) String token, @PathVariable("id") Long id, @RequestBody QuickStockUpdateRequest request) {
+        if (token == null || token.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authentication required");
+        }
         if (request == null || request.quantity() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Quantity is required");
         }

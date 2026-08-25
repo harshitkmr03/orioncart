@@ -101,3 +101,7 @@ yarn-error.log*
 # Playwright Test Screenshots & Output
 *.png
 /frontend/test-results/
+
+#local change logs
+CHANGES_LOG.md
+documents/CHANGES_LOG.md

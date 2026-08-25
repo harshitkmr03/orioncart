@@ -64,7 +64,9 @@ CREATE TABLE orders (
   loyalty_points_redeemed INT DEFAULT 0,
   note TEXT,
   status VARCHAR(50),
-  created_at TIMESTAMP
+  created_at TIMESTAMP,
+  payment_method VARCHAR(20),
+  payment_status VARCHAR(20) DEFAULT 'PENDING'
 );
 
 CREATE TABLE order_item (
