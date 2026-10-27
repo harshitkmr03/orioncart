@@ -40,7 +40,7 @@ export function loadGoogleMaps() {
 
         const script = document.createElement('script');
         script.id = scriptId;
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_API_KEY)}&libraries=places&language=en&region=IN`;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_API_KEY)}&v=weekly&libraries=places&language=en&region=IN`;
         script.async = true;
         script.defer = true;
         script.onload = () => {
@@ -68,9 +68,53 @@ export async function searchPlaces(query, { abortSignal = null } = {}) {
     const q = (query || '').trim();
     if (!q || q.length < 2) return [];
 
-    // 1. Try Google Places Autocomplete first
+    // 1. Try Google Places (New Places API: AutocompleteSuggestion, or Legacy AutocompleteService)
     try {
         const maps = await loadGoogleMaps();
+
+        // 1A. Google Places API (New) - AutocompleteSuggestion
+        if (maps?.places?.AutocompleteSuggestion?.fetchAutocompleteSuggestions) {
+            try {
+                const { suggestions } = await maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
+                    input: q,
+                    includedRegionCodes: ['in'],
+                });
+
+                if (suggestions && suggestions.length > 0) {
+                    const detailed = await Promise.all(
+                        suggestions.slice(0, 6).map(async (s) => {
+                            try {
+                                const p = s.placePrediction;
+                                const place = p.toPlace();
+                                await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location'] });
+                                const lat = place.location?.lat ? place.location.lat() : null;
+                                const lon = place.location?.lng ? place.location.lng() : null;
+                                if (lat == null || lon == null) return null;
+                                return {
+                                    id: p.placeId,
+                                    displayName: place.formattedAddress || p.toDisplayString?.() || p.mainText?.text,
+                                    name: p.mainText?.text || place.displayName || p.toDisplayString?.() || 'Location',
+                                    subText: p.secondaryText?.text || '',
+                                    lat,
+                                    lon,
+                                    source: 'google',
+                                };
+                            } catch {
+                                return null;
+                            }
+                        })
+                    );
+                    const valid = detailed.filter(Boolean);
+                    if (valid.length > 0) {
+                        return valid;
+                    }
+                }
+            } catch (newApiErr) {
+                console.warn('[PlacesService] New Places AutocompleteSuggestion threw, checking legacy...', newApiErr.message);
+            }
+        }
+
+        // 1B. Google Places API (Legacy) - AutocompleteService fallback
         if (maps?.places?.AutocompleteService) {
             const autocompleteService = new maps.places.AutocompleteService();
             const geocoder = new maps.Geocoder();
@@ -94,7 +138,6 @@ export async function searchPlaces(query, { abortSignal = null } = {}) {
             });
 
             if (predictions && predictions.length > 0) {
-                // Fetch geometry (lat/lng) for the top predictions in parallel (limit 5 for performance)
                 const detailedResults = await Promise.all(
                     predictions.slice(0, 6).map(async (p) => {
                         try {
