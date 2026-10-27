@@ -39,17 +39,26 @@ public class AuthService {
     }
 
     public Optional<Long> getUserIdForToken(String token) {
-        if (token == null) return Optional.empty();
-        try {
-            Jws<Claims> parsed = Jwts.parserBuilder()
-                    .setSigningKey(signingKey)
-                    .build()
-                    .parseClaimsJws(token);
-            String sub = parsed.getBody().getSubject();
-            return Optional.of(Long.parseLong(sub));
-        } catch (Exception ex) {
-            return Optional.empty();
+        if (token != null && !token.isBlank()) {
+            try {
+                Jws<Claims> parsed = Jwts.parserBuilder()
+                        .setSigningKey(signingKey)
+                        .build()
+                        .parseClaimsJws(token);
+                String sub = parsed.getBody().getSubject();
+                return Optional.of(Long.parseLong(sub));
+            } catch (Exception ex) {
+                // Continue to check SecurityContextHolder
+            }
         }
+
+        org.springframework.security.core.Authentication auth =
+                org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof com.orioncart.backend.security.UserPrincipal principal) {
+            return Optional.of(principal.getId());
+        }
+
+        return Optional.empty();
     }
 
     public void invalidateToken(String token) {

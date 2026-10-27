@@ -36,7 +36,7 @@ This document describes recommended steps for secret management and JWT secret r
 copy .env.example backend\.env
 # edit backend\.env and set real values then run:
 cd backend
-..\tools\apache-maven-3.9.6\bin\mvn.cmd -DskipTests spring-boot:run
+.\mvnw -DskipTests spring-boot:run
 ```
 
 6) Additional recommendations
@@ -72,6 +72,17 @@ server.port=${SERVER_PORT:7070}
 
 # CORS
 cors.allowed.origins=${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+# Google OAuth2
+google.client.id=${GOOGLE_CLIENT_ID:}
+
+# Mail & OTP Verification (Gmail SMTP)
+spring.mail.host=${MAIL_HOST:smtp.gmail.com}
+spring.mail.port=${MAIL_PORT:587}
+spring.mail.username=${MAIL_USERNAME:}
+spring.mail.password=${MAIL_PASSWORD:}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
 ```
 
 ### 3. Generate Strong JWT Secret

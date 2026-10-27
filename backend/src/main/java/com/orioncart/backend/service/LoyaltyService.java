@@ -1,8 +1,12 @@
 package com.orioncart.backend.service;
 
 import com.orioncart.backend.dto.LoyaltyBalanceDTO;
+import com.orioncart.backend.dto.LoyaltyRedemptionPreviewRequest;
+import com.orioncart.backend.dto.LoyaltyRedemptionPreviewResponse;
 import com.orioncart.backend.dto.LoyaltyTransactionDTO;
 import com.orioncart.backend.dto.ReferralHistoryDTO;
+import com.orioncart.backend.dto.CartItemDTO;
+import com.orioncart.backend.dto.CartResponse;
 import com.orioncart.backend.model.LoyaltyPoints;
 import com.orioncart.backend.model.LoyaltyTransaction;
 import com.orioncart.backend.model.Order;
@@ -21,6 +25,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +37,7 @@ public class LoyaltyService {
     private static final String ORDER_EARN = "ORDER_EARN";
     private static final String REVIEW_EARN = "REVIEW_EARN";
     private static final String REDEMPTION = "REDEMPTION";
+    private static final String REDEMPTION_REFUND = "REDEMPTION_REFUND";
     private static final String FIRST_ORDER_BONUS = "FIRST_ORDER_BONUS";
     private static final String REFERRAL_EARN = "REFERRAL_EARN";
 
@@ -45,6 +52,12 @@ public class LoyaltyService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private CartService cartService;
+
+    @Autowired
+    private CouponService couponService;
 
     public void initializeUserLoyalty(User user) {
         if (user == null || user.getId() == null) {
@@ -135,8 +148,76 @@ public class LoyaltyService {
         }
 
         LoyaltyPoints balance = getOrCreateBalance(userId);
-        int validatedPoints = validateRedeemablePoints(requestedPoints, safeInt(balance.getPointsBalance()), subtotal);
-        return roundCurrency(validatedPoints / 100.0);
+        double rate = getConversionRateForTier(balance.getTier());
+        int validatedPoints = validateRedeemablePoints(
+                requestedPoints, safeInt(balance.getPointsBalance()), subtotal, rate);
+        return roundCurrency(validatedPoints * rate);
+    }
+
+    public LoyaltyRedemptionPreviewResponse previewRedemption(
+            Long userId, LoyaltyRedemptionPreviewRequest request) {
+        if (request == null || request.requestedPoints() == null || request.requestedPoints() < 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Requested points must be zero or greater");
+        }
+
+        LoyaltyPoints balance = getOrCreateBalance(userId);
+        CartResponse cart = cartService.getCart(userId);
+        double subtotal = cart.getSubtotal();
+        double couponDiscount = 0.0;
+        String couponCode = request.couponCode();
+        if (couponCode != null && !couponCode.isBlank()) {
+            Set<Long> shopIds = cart.getItems().stream()
+                    .map(CartItemDTO::getShopId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            couponDiscount = couponService.calculateDiscount(couponCode, subtotal, shopIds);
+        }
+
+        double netSubtotal = Math.max(0.0, subtotal - couponDiscount);
+        int currentBalance = safeInt(balance.getPointsBalance());
+        String tier = balance.getTier() == null ? TIER_BRONZE : balance.getTier();
+        double rate = getConversionRateForTier(tier);
+        int maxAllowed = calculateMaxRedeemablePoints(currentBalance, netSubtotal, rate);
+        int requested = request.requestedPoints();
+
+        if (requested == 0) {
+            return new LoyaltyRedemptionPreviewResponse(
+                    true, 0, 0, 0.0, currentBalance, maxAllowed,
+                    roundCurrency(maxAllowed * rate), tier, rate, netSubtotal, "Choose points to redeem.");
+        }
+        if (currentBalance < 500) {
+            return redemptionPreview(requested, currentBalance, maxAllowed, tier, rate, netSubtotal,
+                    "A minimum balance of 500 points is required to redeem.");
+        }
+        if (requested < 500) {
+            return redemptionPreview(requested, currentBalance, maxAllowed, tier, rate, netSubtotal,
+                    "Minimum 500 points must be redeemed.");
+        }
+        if (requested % 100 != 0) {
+            return redemptionPreview(requested, currentBalance, maxAllowed, tier, rate, netSubtotal,
+                    "Points must be redeemed in increments of 100.");
+        }
+        if (requested > currentBalance) {
+            return redemptionPreview(requested, currentBalance, maxAllowed, tier, rate, netSubtotal,
+                    "Insufficient loyalty point balance.");
+        }
+        if (requested > maxAllowed) {
+            return redemptionPreview(requested, currentBalance, maxAllowed, tier, rate, netSubtotal,
+                    "Redemption exceeds the 20% net subtotal limit.");
+        }
+
+        return new LoyaltyRedemptionPreviewResponse(
+                true, requested, requested, roundCurrency(requested * rate), currentBalance,
+                maxAllowed, roundCurrency(maxAllowed * rate), tier, rate, netSubtotal,
+                "Eligible for a Rs " + String.format(Locale.ROOT, "%.2f", requested * rate) + " discount.");
+    }
+
+    private LoyaltyRedemptionPreviewResponse redemptionPreview(
+            int requested, int balance, int maxAllowed, String tier,
+            double rate, double netSubtotal, String message) {
+        return new LoyaltyRedemptionPreviewResponse(
+                false, requested, 0, 0.0, balance, maxAllowed,
+                roundCurrency(maxAllowed * rate), tier, rate, netSubtotal, message);
     }
 
     public void consumeRedeemedPoints(Long userId, Integer requestedPoints, Long orderId, double subtotal) {
@@ -145,7 +226,9 @@ public class LoyaltyService {
         }
 
         LoyaltyPoints balance = getOrCreateBalance(userId);
-        int validatedPoints = validateRedeemablePoints(requestedPoints, safeInt(balance.getPointsBalance()), subtotal);
+        double rate = getConversionRateForTier(balance.getTier());
+        int validatedPoints = validateRedeemablePoints(
+                requestedPoints, safeInt(balance.getPointsBalance()), subtotal, rate);
         if (validatedPoints <= 0) {
             return;
         }
@@ -159,6 +242,45 @@ public class LoyaltyService {
         loyaltyPointsRepository.save(balance);
 
         createTransaction(balance.getUser(), -validatedPoints, REDEMPTION, orderId, "Redeemed on order #" + orderId);
+    }
+
+    public void refundRedeemedPoints(Long userId, Long orderId) {
+        if (userId == null || orderId == null) {
+            return;
+        }
+
+        LoyaltyPoints balance = getOrCreateBalance(userId);
+        LoyaltyTransaction redemption = loyaltyTransactionRepository
+                .findByUser_IdAndTransactionTypeAndReferenceId(userId, REDEMPTION, orderId)
+                .orElse(null);
+        if (redemption == null || redemption.getId() == null
+                || loyaltyTransactionRepository.existsByReversedTxIdAndIsReversalTrue(redemption.getId())) {
+            return;
+        }
+
+        Integer pointsChange = redemption.getPointsChange();
+        if (pointsChange == null || pointsChange >= 0) {
+            return;
+        }
+        int pointsToRestore = Math.toIntExact(Math.abs((long) pointsChange));
+        if (pointsToRestore == 0) {
+            return;
+        }
+
+        balance.setPointsBalance(Math.addExact(safeInt(balance.getPointsBalance()), pointsToRestore));
+        balance.setUpdatedAt(LocalDateTime.now());
+        loyaltyPointsRepository.save(balance);
+
+        LoyaltyTransaction reversal = new LoyaltyTransaction();
+        reversal.setUser(balance.getUser());
+        reversal.setPointsChange(pointsToRestore);
+        reversal.setTransactionType(REDEMPTION_REFUND);
+        reversal.setReferenceId(orderId);
+        reversal.setDescription("Reversal of loyalty points for cancelled order #" + orderId);
+        reversal.setCreatedAt(LocalDateTime.now());
+        reversal.setIsReversal(true);
+        reversal.setReversedTxId(redemption.getId());
+        loyaltyTransactionRepository.save(reversal);
     }
 
     public void awardForCompletedOrder(Order order) {
@@ -246,26 +368,45 @@ public class LoyaltyService {
         tx.setReferenceId(referenceId);
         tx.setDescription(description);
         tx.setCreatedAt(LocalDateTime.now());
+        tx.setIsReversal(false);
         loyaltyTransactionRepository.save(tx);
     }
 
-    private int validateRedeemablePoints(int requestedPoints, int balance, double subtotal) {
+    private int validateRedeemablePoints(int requestedPoints, int balance, double subtotal, double rate) {
         if (requestedPoints < 500) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Minimum 500 points required for redemption");
+        }
+        if (requestedPoints % 100 != 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Points must be redeemed in increments of 100");
         }
         if (requestedPoints > balance) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You do not have enough points");
         }
 
-        int cap = (int) Math.floor(Math.max(0, subtotal) * 0.20 * 100);
+        int cap = calculateMaxRedeemablePoints(balance, subtotal, rate);
         if (cap <= 0) {
-            return 0;
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Order subtotal is too low for redemption");
         }
         if (requestedPoints > cap) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Points redemption exceeds the 20% order cap");
         }
 
         return requestedPoints;
+    }
+
+    private int calculateMaxRedeemablePoints(int balance, double netSubtotal, double rate) {
+        if (balance <= 0 || !Double.isFinite(netSubtotal) || netSubtotal <= 0 || rate <= 0) {
+            return 0;
+        }
+        double pointsInHundreds = Math.floor((netSubtotal * 0.20) / rate / 100.0);
+        long cap = (long) Math.min(Integer.MAX_VALUE, pointsInHundreds * 100.0);
+        int byCap = (int) Math.max(0, cap);
+        return Math.min(balance, byCap / 100 * 100);
+    }
+
+    public double getConversionRateForTier(String tier) {
+        String normalized = tier == null ? TIER_BRONZE : tier.trim().toUpperCase(Locale.ROOT);
+        return "GOLD".equals(normalized) || "PLATINUM".equals(normalized) ? 0.012 : 0.010;
     }
 
     private String resolveTier(int lifetimePoints) {
@@ -296,4 +437,3 @@ public class LoyaltyService {
         return Math.round(value * 100.0) / 100.0;
     }
 }
-

@@ -330,6 +330,66 @@ export const authAPI = {
         }
         return response.json();
     },
+
+    googleLogin: async (credential) => {
+        const response = await fetch(`${API_BASE_URL}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential }),
+        });
+        if (!response.ok) {
+            let text = await response.text();
+            try { text = JSON.parse(text); } catch (e) { }
+            const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'Google sign in failed');
+            throw new Error(msg);
+        }
+        return response.json();
+    },
+
+    forgotPassword: async (email) => {
+        const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        if (!response.ok) {
+            let text = await response.text();
+            try { text = JSON.parse(text); } catch (e) { }
+            const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'Failed to send reset code');
+            throw new Error(msg);
+        }
+        return response.json();
+    },
+
+    verifyOtp: async (email, otp) => {
+        const response = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp }),
+        });
+        if (!response.ok) {
+            let text = await response.text();
+            try { text = JSON.parse(text); } catch (e) { }
+            const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'Invalid verification code');
+            throw new Error(msg);
+        }
+        return response.json();
+    },
+
+    resetPassword: async (email, otp, newPassword) => {
+        const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, otp, newPassword }),
+        });
+        if (!response.ok) {
+            let text = await response.text();
+            try { text = JSON.parse(text); } catch (e) { }
+            const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'Failed to reset password');
+            throw new Error(msg);
+        }
+        return response.json();
+    },
 };
 
 // Order API
@@ -356,13 +416,19 @@ export const orderAPI = {
     },
 
     getOrdersByUser: async (userId) => {
-        const response = await fetch(`${API_BASE_URL}/orders/buyer/${userId}`);
+        const token = localStorage.getItem('authToken');
+        const headers = {};
+        if (token) headers['X-Auth-Token'] = token;
+        const response = await fetch(`${API_BASE_URL}/orders/buyer/${userId}`, { headers });
         if (!response.ok) throw new Error('Failed to fetch orders');
         return response.json();
     },
 
     getOrdersBySeller: async (sellerId) => {
-        const response = await fetch(`${API_BASE_URL}/orders/shop/${sellerId}`);
+        const token = localStorage.getItem('authToken');
+        const headers = {};
+        if (token) headers['X-Auth-Token'] = token;
+        const response = await fetch(`${API_BASE_URL}/orders/shop/${sellerId}`, { headers });
         if (!response.ok) throw new Error('Failed to fetch seller orders');
         return response.json();
     },
@@ -380,7 +446,10 @@ export const orderAPI = {
     },
 
     getOrderSlip: async (orderId) => {
-        const response = await fetch(`${API_BASE_URL}/orders/${orderId}/slip`);
+        const token = localStorage.getItem('authToken');
+        const headers = {};
+        if (token) headers['X-Auth-Token'] = token;
+        const response = await fetch(`${API_BASE_URL}/orders/${orderId}/slip`, { headers });
         if (!response.ok) throw new Error('Failed to fetch order slip');
         return response.json();
     },
@@ -423,7 +492,10 @@ export const paymentAPI = {
     codOrder: async (codPayload) => {
         const token = localStorage.getItem('authToken');
         const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['X-Auth-Token'] = token;
+        if (token) {
+            headers['X-Auth-Token'] = token;
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
         const response = await fetch(`${API_BASE_URL}/payments/cod`, {
             method: 'POST',
@@ -434,7 +506,9 @@ export const paymentAPI = {
         if (!response.ok) {
             let text = await response.text();
             try { text = JSON.parse(text); } catch (e) { }
-            const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'COD order failed');
+            const msg = (text && text.detail)
+                ? `${text.message}: ${text.detail}`
+                : (text && text.message) ? text.message : (typeof text === 'string' ? text : 'COD order failed');
             throw new Error(msg);
         }
         return response.json();
@@ -573,6 +647,22 @@ export const loyaltyAPI = {
         return response.json();
     },
 
+    previewRedemption: async (payload) => {
+        const token = localStorage.getItem('authToken');
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) headers['X-Auth-Token'] = token;
+        const response = await fetch(`${API_BASE_URL}/loyalty/preview-redemption`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({}));
+            throw new Error(errorBody.message || 'Failed to preview loyalty redemption');
+        }
+        return response.json();
+    },
+
     getTransactions: async () => {
         const token = localStorage.getItem('authToken');
         const headers = {};
@@ -697,5 +787,100 @@ export const deliveryAPI = {
         const response = await fetch(`${API_BASE_URL}/delivery/serviceability?${params.toString()}`);
         if (!response.ok) throw new Error('Failed to check express delivery availability');
         return response.json();
+    },
+};
+
+// ----------------------------------------------------------------
+// Cart API  — server-side cart persistence (Phase 2, Item 1)
+// ----------------------------------------------------------------
+const getAuthHeaders = () => {
+    const token = localStorage.getItem('authToken');
+    return token ? { 'X-Auth-Token': token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+};
+
+const readCartResponse = async (response, fallbackMessage) => {
+    if (response.status === 401) {
+        throw new Error('Your session has expired. Please sign in again.');
+    }
+    if (!response.ok) {
+        const errorBody = await response.json().catch(() => ({}));
+        throw new Error(errorBody.message || fallbackMessage);
+    }
+    return response.json();
+};
+
+export const cartAPI = {
+    /**
+     * Fetch the current user's server-side cart.
+     * Returns CartResponse: { cartId, items[], totalItems, subtotal }
+     */
+    getCart: async () => {
+        const response = await fetch(`${API_BASE_URL}/cart`, {
+            headers: getAuthHeaders(),
+        });
+        return readCartResponse(response, 'Failed to fetch cart');
+    },
+
+    /**
+     * Add an item to the server cart (merges qty if already present).
+     * @param {{ productId, shopId, quantity, price }} item
+     */
+    addItem: async (item) => {
+        const response = await fetch(`${API_BASE_URL}/cart/items`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(item),
+        });
+        return readCartResponse(response, 'Failed to add item to cart');
+    },
+
+    /**
+     * Set an item's absolute quantity (qty=0 removes the item).
+     * @param {number} productId
+     * @param {number} qty
+     */
+    updateQuantity: async (productId, qty) => {
+        const response = await fetch(`${API_BASE_URL}/cart/items/${productId}?qty=${qty}`, {
+            method: 'PUT',
+            headers: getAuthHeaders(),
+        });
+        return readCartResponse(response, 'Failed to update cart item quantity');
+    },
+
+    /**
+     * Remove a single item from the server cart.
+     * @param {number} productId
+     */
+    removeItem: async (productId) => {
+        const response = await fetch(`${API_BASE_URL}/cart/items/${productId}`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        });
+        return readCartResponse(response, 'Failed to remove cart item');
+    },
+
+    /**
+     * Clear all items from the server cart (called after order placed).
+     */
+    clearCart: async () => {
+        const response = await fetch(`${API_BASE_URL}/cart`, {
+            method: 'DELETE',
+            headers: getAuthHeaders(),
+        });
+        return readCartResponse(response, 'Failed to clear cart');
+    },
+
+    /**
+     * Merge guest localStorage cart items into the server cart on login.
+     * @param {Array} guestItems — array of { productId, shopId, quantity, price }
+     */
+    mergeGuestCart: async (guestItems) => {
+        if (!guestItems || guestItems.length === 0) return cartAPI.getCart();
+        const response = await fetch(`${API_BASE_URL}/cart/merge`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(guestItems),
+        });
+        return readCartResponse(response, 'Failed to merge guest cart');
     },
 };

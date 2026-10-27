@@ -47,38 +47,42 @@
 
 ### 1.5 Security & Data Architecture
 * **Authentication:** Password hashing via BCrypt and custom token validation interceptors.
-* **Flyway DB Migrations:** Versioned SQL migrations (`V1` to `V19`) including dynamic Row Level Security (RLS) enforcement.
+* **Flyway DB Migrations:** Versioned SQL migrations (`V1` to `V22`) including PostGIS spatial indexes, server-side cart tables, loyalty transaction tracking, and dynamic Row Level Security (RLS) enforcement.
+* **Server-Side Cart & Loyalty:** Cross-device cart synchronization with pessimistic write locks (`/api/cart/**`) and checkout loyalty point redemption up to 20% order subtotal (`/api/loyalty/**`).
+* **PostGIS Proximity Search & Discovery Map:** PostGIS `GEOGRAPHY(Point,4326)` with GiST spatial indexing (`ST_DWithin`), interactive Leaflet map component (`DiscoveryMap.jsx`), and automatic Spherical Cosine math fallback for offline H2.
+* **Spring Security 6 & OAuth2:** Stateless `SecurityFilterChain`, `JwtAuthenticationFilter`, Google OAuth2 login (`/api/auth/google`), and Gmail SMTP OTP password reset (`/api/auth/forgot-password`).
 
 ---
 
-## 2. FUTURE ROADMAP & PRODUCTION EXTENSIONS (PHASE 2)
+## 2. FUTURE ROADMAP & PRODUCTION EXTENSIONS (PHASE 2 GROUPS 3 & 4)
 
-The following features represent post-MVP production enhancements suitable for enterprise scaling:
+The following features represent the remaining post-MVP production enhancements:
 
-### 2.1 Spring Security & Filter Chain Integration
-* **Goal:** Standardize security layer with Spring Security filter chain (`SecurityConfig` and `JwtFilter`).
+### 2.1 Automated Low-Stock Push Notifications (Item 6)
+* **Goal:** WebSocket / Spring STOMP channels sending real-time stock alerts to shopkeepers when inventory drops below threshold.
 
-### 2.2 Real Payment Gateway Integration (Razorpay)
-* **Goal:** Replace simulated checkout with official Razorpay Java SDK.
+### 2.2 Real-Time Order Tracking (Item 7)
+* **Goal:** Live WebSocket order status updates and delivery partner simulated GPS updates on the customer tracking screen.
 
-### 2.3 3PL Hyperlocal Logistics Handoff (Shiprocket / Borzo)
-* **Goal:** Direct API handoff for express delivery and real-time driver tracking.
+### 2.3 Real Payment Gateway Integration (Razorpay) (Item 8)
+* **Goal:** Replace simulated checkout with official Razorpay Java SDK, UPI deep linking, and webhook signature verification.
 
-### 2.4 WebSocket Real-Time Inventory Sync & Redis Caching
-* **Goal:** Real-time stock synchronization and push alerts across connected clients.
-
-### 2.5 PostGIS Spatial Database Indexing
-* **Goal:** Upgrade double-precision lat/lon columns to PostGIS `GEOMETRY(Point, 4326)` with GIST spatial indexes.
+### 2.4 3PL Hyperlocal Logistics Handoff (Shiprocket / Borzo) (Item 9)
+* **Goal:** Direct REST API dispatch for express deliveries, automated AWB generation, and courier driver tracking.
 
 ---
 
-## 3. SUMMARY COMPARISON
+## 3. SUMMARY STATUS COMPARISON
 
-| Feature Area | Current Status (MVP v1.0) | Phase 2 Production Target |
+| Feature Area | Implementation Status | Technical Details |
 | :--- | :--- | :--- |
-| **Geo-Location** | Spherical Cosine SQL Math | PostGIS Spatial GIST Index |
-| **Security Layer** | Custom Token Validation + BCrypt | Spring Security Filter Chain |
-| **Stock Sync** | Synchronous REST API | WebSockets + Redis Pub/Sub |
-| **Logistics** | Tiered Pricing & Simulated ETA | Shiprocket / Borzo Live API |
-| **Payments** | Atomic Simulated Charge | Razorpay Payment Handoff & Webhooks |
-| **Database** | H2 (Local) / PostgreSQL (Supabase) | PostgreSQL + Redis Cache Layer |
+| **Geo-Location** | ✅ **Implemented** | PostGIS `GEOGRAPHY(Point,4326)` with GiST spatial index + Spherical Cosine fallback |
+| **Interactive Map** | ✅ **Implemented** | Leaflet interactive discovery map pins (`DiscoveryMap.jsx`) with radius circle |
+| **Cart Persistence** | ✅ **Implemented** | Database-backed multi-device cart with pessimistic write locks and guest merge |
+| **Loyalty Redemption** | ✅ **Implemented** | Coupon-aware 20% cart total discount cap, 1 pt = ₹1, atomic debit & refund |
+| **Security Layer** | ✅ **Implemented** | Spring Security 6 stateless JWT filter chain, Google OAuth2, Email OTP password reset |
+| **Stock Push Alerts** | ⚪ *Queued (Item 6)* | Spring STOMP / WebSockets + low-stock watchlist broadcast |
+| **Live Order Tracking** | ⚪ *Queued (Item 7)* | Live WebSocket order status + simulated GPS driver location updates |
+| **Payments** | ⚪ *Queued (Item 8)* | Razorpay SDK payment handoff, UPI webhooks, automated reconciliation |
+| **Logistics Handoff** | ⚪ *Queued (Item 9)* | Shiprocket Hyperlocal / Borzo REST API dispatch and AWB generation |
+| **Database** | ✅ **Implemented** | PostgreSQL 16 (PostGIS) / Flyway V1–V22 / H2 offline testing |

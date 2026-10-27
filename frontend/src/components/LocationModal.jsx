@@ -16,6 +16,7 @@ import { X, MapPin, Navigation } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { searchPlaces, reverseGeocode } from '../services/placesService';
 
 // Fix default icon paths so markers show up under Vite bundling
 delete L.Icon.Default.prototype._getIconUrl;
@@ -26,8 +27,6 @@ L.Icon.Default.mergeOptions({
 });
 
 const DEFAULT_CENTER      = [20.5937, 78.9629]; // India center
-const PHOTON_SEARCH    = 'https://photon.komoot.io/api';
-const PHOTON_REVERSE   = 'https://photon.komoot.io/reverse';
 
 // ── Debounce hook ─────────────────────────────────────────────────────────────
 function useDebounced(value, delay = 300) {
@@ -128,42 +127,34 @@ const LocationModal = ({ isOpen, onClose, onSelect }) => {
     // Reverse geocode on pin change
     useEffect(() => {
         if (!position) return;
-        fetch(`${PHOTON_REVERSE}?lat=${position[0]}&lon=${position[1]}`, { headers: { 'Accept-Language': 'en' } })
-            .then(r => r.json())
-            .then(j => {
-                if (j.features && j.features.length > 0) {
-                    const p = j.features[0].properties;
-                    const parts = [p.name, p.street, p.district, p.city, p.state, p.country].filter(Boolean);
-                    setAddress([...new Set(parts)].join(', '));
-                } else {
-                    setAddress(`${position[0].toFixed(5)}, ${position[1].toFixed(5)}`);
-                }
+        reverseGeocode(position[0], position[1])
+            .then(addr => {
+                if (addr) setAddress(addr);
+                else setAddress(`${position[0].toFixed(5)}, ${position[1].toFixed(5)}`);
             })
             .catch(() => setAddress(`${position[0].toFixed(5)}, ${position[1].toFixed(5)}`));
     }, [position]);
 
-    // Real-time search
+    // Real-time search with Google Places + Photon fallback
     useEffect(() => {
         const q = debouncedQuery.trim();
         if (q.length < 2) { setResults([]); setOpen(false); setStatus('idle'); return; }
         if (abortRef.current) abortRef.current.abort();
         abortRef.current = new AbortController();
         setStatus('loading'); setActiveIdx(-1);
-        fetch(`${PHOTON_SEARCH}?q=${encodeURIComponent(q)}&limit=10`,
-            { signal: abortRef.current.signal, headers: { 'Accept-Language': 'en' } })
-            .then(r => r.json())
+
+        searchPlaces(q, { abortSignal: abortRef.current.signal })
             .then(data => {
-                const mapped = (data.features || []).map(f => {
-                    const p = f.properties;
-                    const parts = [p.name, p.street, p.district, p.city, p.state, p.country].filter(Boolean);
-                    return {
-                        lat: parseFloat(f.geometry.coordinates[1]),
-                        lon: parseFloat(f.geometry.coordinates[0]),
-                        display_name: [...new Set(parts)].join(', '),
-                        type: p.osm_value
-                    };
-                });
-                setResults(mapped || []); setOpen(true); setStatus('idle'); 
+                const mapped = data.map(item => ({
+                    lat: item.lat,
+                    lon: item.lon,
+                    display_name: item.displayName,
+                    name: item.name,
+                    subText: item.subText,
+                    type: item.source === 'google' ? 'google' : (item.type || 'place'),
+                    source: item.source,
+                }));
+                setResults(mapped || []); setOpen(true); setStatus('idle');
             })
             .catch(e => { if (e.name !== 'AbortError') { setResults([]); setStatus('idle'); } });
     }, [debouncedQuery]);
@@ -290,33 +281,40 @@ const LocationModal = ({ isOpen, onClose, onSelect }) => {
                                 animation: 'lm-dropdown 0.15s ease-out',
                             }}>
                                 {results.map((r, i) => {
-                                    const parts = r.display_name.split(', ');
-                                    const main  = parts.slice(0, 2).join(', ');
-                                    const sub   = parts.slice(2, 5).join(', ');
+                                    const parts = (r.display_name || '').split(', ');
+                                    const main  = r.name || parts.slice(0, 2).join(', ');
+                                    const sub   = r.subText || parts.slice(2, 5).join(', ');
                                     const isAct = i === activeIdx;
                                     return (
-                                        <button key={r.place_id || i} type="button" className="lm-sug"
+                                        <button key={r.id || r.place_id || i} type="button" className="lm-sug"
                                             onClick={() => handleSelect(r)}
                                             onMouseEnter={() => setActiveIdx(i)}
                                             style={{
                                                 width: '100%', textAlign: 'left', padding: '9px 12px',
                                                 border: 'none', borderBottom: i < results.length - 1 ? '1px solid #f1f5f9' : 'none',
                                                 background: isAct ? '#f5f3ff' : 'none', cursor: 'pointer',
-                                                display: 'flex', alignItems: 'flex-start', gap: 9,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 9,
                                             }}>
-                                            <div style={{
-                                                width: 26, height: 26, borderRadius: 7, flexShrink: 0, marginTop: 1,
-                                                background: isAct ? '#ede9fe' : '#f8fafc',
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13,
-                                            }}>
-                                                {typeIcon(r.type || r.class)}
+                                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9, minWidth: 0, flex: 1 }}>
+                                                <div style={{
+                                                    width: 26, height: 26, borderRadius: 7, flexShrink: 0, marginTop: 1,
+                                                    background: isAct ? '#ede9fe' : '#f8fafc',
+                                                    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13,
+                                                }}>
+                                                    {typeIcon(r.type || r.class)}
+                                                </div>
+                                                <div style={{ minWidth: 0 }}>
+                                                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                        <HighlightedText text={main} query={query.split(',')[0]} />
+                                                    </p>
+                                                    {sub && <p style={{ margin: '1px 0 0', fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub}</p>}
+                                                </div>
                                             </div>
-                                            <div style={{ minWidth: 0 }}>
-                                                <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                    <HighlightedText text={main} query={query.split(',')[0]} />
-                                                </p>
-                                                {sub && <p style={{ margin: '1px 0 0', fontSize: 11, color: '#64748b' }}>{sub}</p>}
-                                            </div>
+                                            {r.source === 'google' && (
+                                                <span style={{ fontSize: 10, fontWeight: 600, color: '#4f46e5', background: '#eef2ff', padding: '2px 6px', borderRadius: 6, flexShrink: 0 }}>
+                                                    Google
+                                                </span>
+                                            )}
                                         </button>
                                     );
                                 })}

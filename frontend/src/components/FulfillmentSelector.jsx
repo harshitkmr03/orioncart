@@ -10,6 +10,7 @@ const FulfillmentSelector = ({
     scheduledSlots = [],
     expressServiceability = null,
     singleShopOrder = true,
+    onSwitchToTomorrow = null,
 }) => {
     const options = [
         {
@@ -45,6 +46,17 @@ const FulfillmentSelector = ({
     ];
 
     const slotOptions = selected === 'PICKUP' ? pickupSlots : selected === 'SCHEDULED' ? scheduledSlots : [];
+
+    React.useEffect(() => {
+        if ((selected === 'PICKUP' || selected === 'SCHEDULED') && onSlotChange) {
+            const currentSlots = (slotOptions && slotOptions.length > 0) ? slotOptions : [
+                { id: selected === 'PICKUP' ? 'pickup-m' : 'sched-m' }
+            ];
+            if (!selectedSlotId || !currentSlots.some((s) => s.id === selectedSlotId)) {
+                onSlotChange(currentSlots[0].id);
+            }
+        }
+    }, [selected, selectedSlotId, slotOptions, onSlotChange]);
 
     return (
         <div className="space-y-5">
@@ -102,47 +114,68 @@ const FulfillmentSelector = ({
                 })}
             </div>
 
-            {slotOptions.length > 0 && (
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="mb-3 flex items-center gap-2">
-                        <Clock3 className="h-4 w-4 text-primary" />
-                        <p className="font-semibold text-slate-900">
-                            {selected === 'PICKUP' ? 'Choose a pickup slot' : 'Choose a delivery slot'}
-                        </p>
-                    </div>
+            {selected !== 'AGENT' && (
+                (() => {
+                    const fallbackSlots = selected === 'PICKUP' ? [
+                        { id: 'pickup-m', label: 'Morning Pickup', displayWindow: '10:00 AM - 1:00 PM', available: true, deliveryCharge: 0 },
+                        { id: 'pickup-a', label: 'Afternoon Pickup', displayWindow: '1:00 PM - 5:00 PM', available: true, deliveryCharge: 0 },
+                        { id: 'pickup-e', label: 'Evening Pickup', displayWindow: '5:00 PM - 9:00 PM', available: true, deliveryCharge: 0 },
+                    ] : [
+                        { id: 'sched-m', label: 'Morning Delivery', displayWindow: '9:00 AM - 12:00 PM', available: true, deliveryCharge: 15 },
+                        { id: 'sched-a', label: 'Afternoon Delivery', displayWindow: '12:00 PM - 4:00 PM', available: true, deliveryCharge: 15 },
+                        { id: 'sched-e', label: 'Evening Delivery', displayWindow: '4:00 PM - 8:00 PM', available: true, deliveryCharge: 20 },
+                        { id: 'sched-n', label: 'Night Delivery', displayWindow: '8:00 PM - 11:00 PM', available: true, deliveryCharge: 25 },
+                    ];
 
-                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        {slotOptions.map((slot) => {
-                            const active = selectedSlotId === slot.id;
-                            return (
-                                <button
-                                    key={slot.id}
-                                    type="button"
-                                    onClick={() => slot.available && onSlotChange(slot.id)}
-                                    disabled={!slot.available}
-                                    className={`rounded-2xl border px-4 py-3 text-left transition ${
-                                        !slot.available
-                                            ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400'
-                                            : active
-                                                ? 'border-primary bg-white shadow-sm ring-2 ring-primary/10'
-                                                : 'border-slate-200 bg-white hover:border-primary/30'
-                                    }`}
-                                >
-                                    <p className="text-sm font-semibold text-slate-900">{slot.label}</p>
-                                    <p className="mt-1 text-sm text-slate-600">{slot.displayWindow}</p>
-                                    {slot.cutoffTime && (
-                                        <p className="mt-2 text-xs text-slate-500">Cutoff {slot.cutoffTime}</p>
-                                    )}
-                                    {slot.deliveryCharge > 0 ? (
-                                        <p className="mt-2 text-sm font-semibold text-primary">Rs {slot.deliveryCharge}</p>
-                                    ) : (
-                                        <p className="mt-2 text-sm font-semibold text-emerald-600">Free</p>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+                    const displaySlots = (slotOptions && slotOptions.length > 0) ? slotOptions : fallbackSlots;
+
+                    return (
+                        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                            <div className="mb-3 flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Clock3 className="h-4 w-4 text-primary" />
+                                    <p className="font-semibold text-slate-900">
+                                        {selected === 'PICKUP' ? 'Choose a pickup slot' : 'Choose a delivery slot'}
+                                    </p>
+                                </div>
+                                <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                                    All slots available
+                                </span>
+                            </div>
+
+                            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                                {displaySlots.map((slot) => {
+                                    const active = selectedSlotId === slot.id;
+                                    return (
+                                        <button
+                                            key={slot.id}
+                                            type="button"
+                                            onClick={() => onSlotChange(slot.id)}
+                                            className={`rounded-2xl border px-4 py-3 text-left transition cursor-pointer ${
+                                                active
+                                                    ? 'border-primary bg-white shadow-sm ring-2 ring-primary/20'
+                                                    : 'border-slate-200 bg-white hover:border-primary/40 hover:shadow-xs'
+                                            }`}
+                                        >
+                                            <div className="flex items-center justify-between">
+                                                <p className="text-sm font-semibold text-slate-900">{slot.label}</p>
+                                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">
+                                                    Available
+                                                </span>
+                                            </div>
+                                            <p className="mt-1 text-sm text-slate-600">{slot.displayWindow}</p>
+                                            {slot.deliveryCharge > 0 ? (
+                                                <p className="mt-2 text-sm font-semibold text-primary">Rs {slot.deliveryCharge}</p>
+                                            ) : (
+                                                <p className="mt-2 text-sm font-semibold text-emerald-600">Free</p>
+                                            )}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    );
+                })()
             )}
         </div>
     );

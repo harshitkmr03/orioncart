@@ -21,6 +21,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { searchPlaces, reverseGeocode } from '../services/placesService';
 
 // ── Fix Leaflet default icon paths inside Vite bundler ───────────────────────
 delete L.Icon.Default.prototype._getIconUrl;
@@ -42,8 +43,6 @@ const shopIcon = new L.Icon({
 
 const DEFAULT_CENTER = [22.7196, 75.8577]; // Indore fallback
 const DEFAULT_ZOOM   = 13;
-const PHOTON_SEARCH  = 'https://photon.komoot.io/api';
-const PHOTON_REVERSE = 'https://photon.komoot.io/reverse';
 
 // ── Debounce hook ─────────────────────────────────────────────────────────────
 function useDebounced(value, delay = 300) {
@@ -115,7 +114,7 @@ const GeoSearchBar = ({ onSelect }) => {
         return () => document.removeEventListener('mousedown', h);
     }, []);
 
-    // Real-time search
+    // Real-time search with Google Places + Photon fallback
     useEffect(() => {
         const q = debouncedQuery.trim();
         if (q.length < 2) {
@@ -129,23 +128,17 @@ const GeoSearchBar = ({ onSelect }) => {
         setStatus('loading');
         setActiveIdx(-1);
 
-        fetch(
-            `${PHOTON_SEARCH}?q=${encodeURIComponent(q)}&limit=10`,
-            { signal: abortRef.current.signal, headers: { 'Accept-Language': 'en' } }
-        )
-            .then(r => r.json())
+        searchPlaces(q, { abortSignal: abortRef.current.signal })
             .then(data => {
-                const mapped = (data.features || []).map(f => {
-                    const p = f.properties;
-                    const parts = [p.name, p.street, p.district, p.city, p.state, p.country].filter(Boolean);
-                    const uniqueParts = [...new Set(parts)];
-                    return {
-                        lat: parseFloat(f.geometry.coordinates[1]),
-                        lon: parseFloat(f.geometry.coordinates[0]),
-                        display_name: uniqueParts.join(', '),
-                        type: p.osm_value
-                    };
-                });
+                const mapped = data.map(item => ({
+                    lat: item.lat,
+                    lon: item.lon,
+                    display_name: item.displayName,
+                    name: item.name,
+                    subText: item.subText,
+                    type: item.type,
+                    source: item.source,
+                }));
                 setResults(mapped || []);
                 setOpen(true);
                 setStatus('done');
@@ -185,7 +178,7 @@ const GeoSearchBar = ({ onSelect }) => {
     };
 
     const handleSelect = (result) => {
-        const name = result.display_name.split(',').slice(0, 3).join(', ');
+        const name = (result.name || result.display_name).split(',').slice(0, 3).join(', ');
         setQuery(name);
         setAddress(result.display_name);
         setOpen(false);
@@ -202,14 +195,7 @@ const GeoSearchBar = ({ onSelect }) => {
             async (pos) => {
                 const { latitude: lat, longitude: lon } = pos.coords;
                 try {
-                    const res = await fetch(`${PHOTON_REVERSE}?lat=${lat}&lon=${lon}`, { headers: { 'Accept-Language': 'en' } });
-                    const json = await res.json();
-                    let name = `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
-                    if (json.features && json.features.length > 0) {
-                        const p = json.features[0].properties;
-                        const parts = [p.name, p.street, p.district, p.city, p.state, p.country].filter(Boolean);
-                        name = [...new Set(parts)].join(', ');
-                    }
+                    const name = await reverseGeocode(lat, lon);
                     setQuery(name.split(',').slice(0, 3).join(', '));
                     setAddress(name);
                     onSelect({ lat, lng: lon, displayName: name });
@@ -321,14 +307,14 @@ const GeoSearchBar = ({ onSelect }) => {
                         transformOrigin: 'top center',
                     }}>
                     {results.map((r, i) => {
-                        const parts    = r.display_name.split(', ');
-                        const main     = parts.slice(0, 2).join(', ');
-                        const sub      = parts.slice(2, 5).join(', ');
+                        const parts    = (r.display_name || '').split(', ');
+                        const main     = r.name || parts.slice(0, 2).join(', ');
+                        const sub      = r.sub || parts.slice(2, 5).join(', ');
                         const typeIcon = getTypeIcon(r.type || r.class);
                         const isActive = i === activeIdx;
                         return (
                             <button
-                                key={r.place_id || i}
+                                key={r.id || r.place_id || i}
                                 type="button"
                                 className="lpm-suggestion-btn"
                                 onClick={() => handleSelect(r)}
@@ -338,23 +324,30 @@ const GeoSearchBar = ({ onSelect }) => {
                                     border: 'none',
                                     borderBottom: i < results.length - 1 ? '1px solid #f1f5f9' : 'none',
                                     background: isActive ? '#f5f3ff' : 'none',
-                                    cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 10,
+                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10,
                                     transition: 'background 0.1s',
                                 }}>
-                                <div style={{
-                                    width: 28, height: 28, borderRadius: 8, flexShrink: 0, marginTop: 1,
-                                    background: isActive ? '#ede9fe' : '#f8fafc',
-                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                    color: '#6366f1', fontSize: 14, transition: 'background 0.15s',
-                                }}>
-                                    {typeIcon}
+                                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, minWidth: 0, flex: 1 }}>
+                                    <div style={{
+                                        width: 28, height: 28, borderRadius: 8, flexShrink: 0, marginTop: 1,
+                                        background: isActive ? '#ede9fe' : '#f8fafc',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        color: '#6366f1', fontSize: 14, transition: 'background 0.15s',
+                                    }}>
+                                        {typeIcon}
+                                    </div>
+                                    <div style={{ minWidth: 0 }}>
+                                        <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            <HighlightedText text={main} query={query.split(',')[0]} />
+                                        </p>
+                                        {sub && <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{sub}</p>}
+                                    </div>
                                 </div>
-                                <div style={{ minWidth: 0 }}>
-                                    <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                        <HighlightedText text={main} query={query.split(',')[0]} />
-                                    </p>
-                                    {sub && <p style={{ margin: '2px 0 0', fontSize: 11, color: '#64748b' }}>{sub}</p>}
-                                </div>
+                                {r.source === 'google' && (
+                                    <span style={{ fontSize: 10, fontWeight: 600, color: '#4f46e5', background: '#eef2ff', padding: '2px 6px', borderRadius: 6, flexShrink: 0 }}>
+                                        Google
+                                    </span>
+                                )}
                             </button>
                         );
                     })}
@@ -408,20 +401,15 @@ const LocationPickerMap = ({ lat, lng, onChange }) => {
         if (!hasPin) { setResolvedAddress(''); return; }
         let cancelled = false;
         setReverseLoading(true);
-        fetch(`${PHOTON_REVERSE}?lat=${lat}&lon=${lng}`, { headers: { 'Accept-Language': 'en' } })
-            .then(r => r.json())
-            .then(data => { 
+        reverseGeocode(lat, lng)
+            .then(addr => {
                 if (!cancelled) {
-                    if (data.features && data.features.length > 0) {
-                        const p = data.features[0].properties;
-                        const parts = [p.name, p.street, p.district, p.city, p.state, p.country].filter(Boolean);
-                        setResolvedAddress([...new Set(parts)].join(', '));
-                    } else {
-                        setResolvedAddress('');
-                    }
-                } 
+                    setResolvedAddress(addr || `${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+                }
             })
-            .catch(() => {})
+            .catch(() => {
+                if (!cancelled) setResolvedAddress(`${lat.toFixed(5)}, ${lng.toFixed(5)}`);
+            })
             .finally(() => { if (!cancelled) setReverseLoading(false); });
         return () => { cancelled = true; };
     }, [lat, lng, hasPin]);

@@ -61,7 +61,15 @@ public class DiscoveryService {
                 shop.getAddress()
         );
 
-        List<Shop> nearbyShops = shopRepository.findNearby(lat, lon, radiusKm);
+        List<Shop> nearbyShops;
+        try {
+            nearbyShops = shopRepository.findNearby(lat, lon, radiusKm);
+        } catch (Exception ex) {
+            nearbyShops = shopRepository.findAll().stream()
+                    .filter(s -> s.getLatitude() != null && s.getLongitude() != null)
+                    .filter(s -> calculateDistanceKm(lat, lon, s.getLatitude(), s.getLongitude()) <= radiusKm)
+                    .toList();
+        }
         Map<Long, ReviewService.ShopReviewSnapshot> reviewSnapshots = reviewService.getShopReviewSnapshots(
                 nearbyShops.stream().map(Shop::getId).toList()
         );

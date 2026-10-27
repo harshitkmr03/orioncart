@@ -22,12 +22,13 @@ const getFulfillmentIcon = (type) => {
     return Zap;
 };
 
-export default function PaymentPage({ items = [], clearCart }) {
+export default function PaymentPage({ items, clearCart, cartReady = true }) {
     const navigate = useNavigate();
     const location = useLocation();
 
     const checkoutState = location.state || {};
-    const [cartItems, setCartItems] = useState(Array.isArray(items) && items.length > 0 ? items : []);
+    const [localCartItems, setLocalCartItems] = useState([]);
+    const cartItems = Array.isArray(items) ? items : localCartItems;
     const [shippingInfo] = useState(checkoutState.shippingInfo || {});
     const [processingPayment, setProcessingPayment] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState(
@@ -40,15 +41,15 @@ export default function PaymentPage({ items = [], clearCart }) {
     const isPickup = fulfillmentType === 'PICKUP';
 
     useEffect(() => {
-        if (Array.isArray(items) && items.length > 0) {
+        if (Array.isArray(items)) {
             return;
         }
 
         try {
             const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-            setCartItems(Array.isArray(cart) ? cart : []);
+            setLocalCartItems(Array.isArray(cart) ? cart : []);
         } catch {
-            setCartItems([]);
+            setLocalCartItems([]);
         }
     }, [items]);
 
@@ -101,6 +102,8 @@ export default function PaymentPage({ items = [], clearCart }) {
 
     const handlePayment = async (event) => {
         event.preventDefault();
+
+        if (!cartReady) return;
 
         const token = localStorage.getItem('authToken');
         if (!token) {
@@ -365,10 +368,10 @@ export default function PaymentPage({ items = [], clearCart }) {
                             </button>
                             <button
                                 type="submit"
-                                disabled={processingPayment}
+                                disabled={processingPayment || !cartReady || cartItems.length === 0}
                                 className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary/90 disabled:bg-gray-400"
                             >
-                                {processingPayment ? 'Processing...' : `Pay Rs ${total.toFixed(2)}`}
+                                {processingPayment ? 'Processing...' : !cartReady ? 'Sync your cart to continue' : cartItems.length === 0 ? 'Your cart is empty' : `Pay Rs ${total.toFixed(2)}`}
                             </button>
                         </div>
                     </form>

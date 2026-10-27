@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Cloud } from 'lucide-react';
 
-export default function CartPage({ items: controlledItems, onUpdateQuantity, onRemove, onClear }) {
+export default function CartPage({ items: controlledItems, onUpdateQuantity, onRemove, onClear, serverSynced, cartReady = true }) {
   const isControlled = Array.isArray(controlledItems);
-  const [localItems, setLocalItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [localItems, setLocalItems] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('cart') || '[]');
+    } catch (error) {
+      console.warn('[Cart] Unable to read local cart:', error);
+      return [];
+    }
+  });
   const navigate = useNavigate();
 
   const items = isControlled ? controlledItems : localItems;
@@ -14,22 +20,10 @@ export default function CartPage({ items: controlledItems, onUpdateQuantity, onR
     try {
       localStorage.setItem('cart', JSON.stringify(nextCart));
       window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart: nextCart } }));
-    } catch (e) {}
+    } catch (error) {
+      console.warn('[Cart] Unable to update local cart:', error);
+    }
   };
-
-  useEffect(() => {
-    if (isControlled) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      setLocalItems(cart);
-    } catch (e) {
-      setLocalItems([]);
-    }
-    setLoading(false);
-  }, [isControlled]);
 
   const updateQuantity = (productId, delta) => {
     if (typeof onUpdateQuantity === 'function') {
@@ -65,17 +59,13 @@ export default function CartPage({ items: controlledItems, onUpdateQuantity, onR
   };
 
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const hasUnavailableItems = items.some((item) => (
+    Number.isFinite(Number(item.availableStock))
+      && (Number(item.availableStock) < 1 || item.quantity > Number(item.availableStock))
+  ));
   const tax = Math.round(subtotal * 0.05); // 5% tax
   const shipping = subtotal > 0 ? 50 : 0;
   const total = subtotal + tax + shipping;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -89,7 +79,15 @@ export default function CartPage({ items: controlledItems, onUpdateQuantity, onR
             <ArrowLeft size={20} />
             Continue Shopping
           </button>
-          <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+          <div className="flex items-center gap-3 flex-wrap">
+            <h1 className="text-3xl font-bold text-gray-900">Shopping Cart</h1>
+            {serverSynced && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+                <Cloud size={13} />
+                Synced to your account
+              </span>
+            )}
+          </div>
         </div>
 
         {items.length === 0 ? (
@@ -145,7 +143,8 @@ export default function CartPage({ items: controlledItems, onUpdateQuantity, onR
                               <span className="px-4 py-2 font-medium text-gray-900">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.id, 1)}
-                                className="p-2 hover:bg-gray-100"
+                                disabled={Number.isFinite(Number(item.availableStock)) && item.quantity >= Number(item.availableStock)}
+                                className="p-2 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
                               >
                                 <Plus size={16} />
                               </button>
@@ -158,6 +157,14 @@ export default function CartPage({ items: controlledItems, onUpdateQuantity, onR
                               <Trash2 size={18} />
                             </button>
                           </div>
+                          {item.priceChanged && (
+                            <p className="mt-2 text-sm text-amber-700">The current price has changed to ₹{Number(item.price).toFixed(2)}.</p>
+                          )}
+                          {Number(item.availableStock) === 0 ? (
+                            <p className="mt-2 text-sm text-red-700">This item is currently out of stock.</p>
+                          ) : Number.isFinite(Number(item.availableStock)) && item.quantity > Number(item.availableStock) ? (
+                            <p className="mt-2 text-sm text-red-700">Only {item.availableStock} available. Reduce the quantity to continue.</p>
+                          ) : null}
                         </div>
 
                         {/* Price */}
@@ -209,9 +216,10 @@ export default function CartPage({ items: controlledItems, onUpdateQuantity, onR
 
                 <button
                   onClick={() => navigate('/checkout')}
-                  className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors mb-3"
+                  disabled={!cartReady || hasUnavailableItems}
+                  className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors mb-3 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Proceed to Checkout
+                  {!cartReady ? 'Sync your cart to continue' : hasUnavailableItems ? 'Update unavailable items' : 'Proceed to Checkout'}
                 </button>
 
                 <button

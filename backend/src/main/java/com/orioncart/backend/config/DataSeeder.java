@@ -24,18 +24,30 @@ public class DataSeeder implements CommandLineRunner {
         private final UserRepository userRepository;
         private final com.orioncart.backend.repository.ShopRepository shopRepository;
         private final com.orioncart.backend.repository.ProductRepository productRepository;
+        private final org.springframework.jdbc.core.JdbcTemplate jdbcTemplate;
 
         public DataSeeder(UserRepository userRepository,
                         com.orioncart.backend.repository.ShopRepository shopRepository,
-                        com.orioncart.backend.repository.ProductRepository productRepository) {
+                        com.orioncart.backend.repository.ProductRepository productRepository,
+                        org.springframework.jdbc.core.JdbcTemplate jdbcTemplate) {
                 this.userRepository = userRepository;
                 this.shopRepository = shopRepository;
                 this.productRepository = productRepository;
+                this.jdbcTemplate = jdbcTemplate;
         }
 
         @Override
         @Transactional
         public void run(String... args) throws Exception {
+                try {
+                        jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50)");
+                        jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status VARCHAR(50)");
+                        jdbcTemplate.execute("ALTER TABLE orders ADD COLUMN IF NOT EXISTS loyalty_points_redeemed INTEGER DEFAULT 0");
+                        log.info("Schema verified: orders table contains payment_method, payment_status, and loyalty_points_redeemed.");
+                } catch (Exception e) {
+                        log.warn("Orders table column verification note: {}", e.getMessage());
+                }
+
                 log.info("Ensuring sample users with valid credentials exist...");
 
                 org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder = new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();

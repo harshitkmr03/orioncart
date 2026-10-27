@@ -29,6 +29,12 @@ public class LoyaltyTransaction {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @Column(name = "is_reversal", nullable = false)
+    private Boolean isReversal = false;
+
+    @Column(name = "reversed_tx_id")
+    private Long reversedTxId;
+
     public Long getId() {
         return id;
     }
@@ -84,5 +90,20 @@ public class LoyaltyTransaction {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
-}
 
+    public Boolean getIsReversal() {
+        return isReversal;
+    }
+
+    public void setIsReversal(Boolean isReversal) {
+        this.isReversal = isReversal;
+    }
+
+    public Long getReversedTxId() {
+        return reversedTxId;
+    }
+
+    public void setReversedTxId(Long reversedTxId) {
+        this.reversedTxId = reversedTxId;
+    }
+}

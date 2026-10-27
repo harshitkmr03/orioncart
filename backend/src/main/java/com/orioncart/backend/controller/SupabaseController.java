@@ -60,6 +60,5 @@ public class SupabaseController {
         List<Map<String, Object>> rows = jdbcTemplate.queryForList(sql);
         return ResponseEntity.ok(rows);
     }
-
 }
 
