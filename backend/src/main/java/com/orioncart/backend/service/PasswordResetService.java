@@ -52,9 +52,9 @@ public class PasswordResetService {
 
     public Map<String, Object> sendResetOtp(String email) {
         String normalized = normalizeEmail(email);
-        String recipientName = userRepository.findByEmail(normalized)
-                .map(User::getName)
-                .orElse("OrionCart User");
+        User user = userRepository.findByEmail(normalized)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No account found with this email"));
+        String recipientName = user.getName() != null && !user.getName().isBlank() ? user.getName() : "OrionCart User";
 
         String otp = generateNumericOtp();
         Instant expiresAt = Instant.now().plus(OTP_EXPIRY_MINUTES, ChronoUnit.MINUTES);
@@ -86,15 +86,8 @@ public class PasswordResetService {
         String normalized = normalizeEmail(email);
         validateOtpEntry(normalized, otp);
 
-        User user = userRepository.findByEmail(normalized).orElseGet(() -> {
-            User newUser = new User();
-            newUser.setEmail(normalized);
-            newUser.setUsername(normalized);
-            newUser.setName(normalized.split("@")[0]);
-            newUser.setRole(User.Role.CUSTOMER);
-            newUser.setPhoneVerified(true);
-            return newUser;
-        });
+        User user = userRepository.findByEmail(normalized)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No account found with this email"));
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
