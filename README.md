@@ -6,21 +6,26 @@ OrionCart is a hyper-local e-commerce platform designed to digitize physical nei
 
 ---
 
-## ✨ Key Implemented Features (Working MVP)
+## ✨ Key Implemented Features
 
-* **📍 Distance-Based Geo-Spatial Shop Discovery:** Calculates exact distances between customer coordinates and nearby shops using the Spherical Law of Cosines formula (0–20 km configurable radius).
+### 🛒 Core Commerce & Marketplace
+* **📍 PostGIS Spatial Indexing & Discovery:** Ultra-fast geospatial proximity searches using PostgreSQL PostGIS `GEOGRAPHY(Point,4326)` with GiST indexes (`ST_DWithin`), paired with an automatic fallback to Spherical Law of Cosines for offline testing.
+* **🗺️ Interactive Discovery Map:** Visual Leaflet map on the shop discovery page (`DiscoveryMap.jsx`) with custom shop pins, interactive detail popups, and radius coverage overlays.
+* **🛒 Server-Side Cart Persistence:** Multi-device synchronized cart with database backing (`cart` and `cart_item` tables), pessimistic row locking, and seamless guest-to-authenticated cart merging on login.
+* **🎁 Coupon-Aware Loyalty Point Redemption:** Direct point redemption at checkout with a 20% cart total discount cap (1 point = ₹1), atomic debit on order placement, and idempotent point refunds on cancellation.
 * **🔍 Multi-Category & Keyword Search:** Real-time search across shops and products by name, SKU, or category.
 * **📦 CSV Product Bulk Upload:** Enables shopkeepers to quickly upload product catalogs via CSV (`POST /api/products/bulk-upload`) or download sample templates (`GET /api/products/csv-template`).
-* **🚚 3-Tier Fulfillment Pricing System:**
-  * **Self-Collect (Pickup):** Pick up directly from store (Free).
-  * **Scheduled Delivery:** Batched local route delivery (Flat ₹15 fee).
+* **🚚 3-Tier Fulfillment System:**
+  * **Self-Collect (Pickup):** Pick up directly from store with configurable 24/7 time slots (Free).
+  * **Scheduled Delivery:** Batched local route delivery with all-day delivery slots (Flat ₹15 fee).
   * **Express Hyperlocal Delivery:** Fast store-to-door delivery with distance-tiered pricing (₹20 / ₹35 / ₹50).
-* **🔐 Password-Hardened Authentication:** BCrypt password hashing via spring-security-crypto and manual token-based session validation.
-* **🎁 Loyalty & Referral System:** Automated points accumulation, tier badges (Bronze, Silver, Gold, Platinum), and referral code tracking.
-* **🏷️ Coupons & Discount Engine:** Coupon validation supporting percentage/flat discounts, minimum order limits, and usage caps.
-* **⭐️ Customer Reviews & Ratings:** Star ratings (1–5) and review feedback for shops and products.
-* **⚖️ Dispute Resolution System:** Allows buyers to raise order disputes, shopkeepers to respond, and admins to resolve.
-* **🔔 Low-Stock Monitoring Dashboard:** Shopkeepers can view low-stock products on their dashboard.
+
+### 🔐 Security, Authentication & Accounts
+* **🛡️ Spring Security 6 & Stateless JWT Filter Chain:** Enterprise-grade security architecture with `SecurityFilterChain`, `JwtAuthenticationFilter`, custom `AuthenticationEntryPoint` (401 JSON) and `AccessDeniedHandler` (403 JSON).
+* **🔑 Dual-Header Token Compatibility:** Seamlessly accepts standard `Authorization: Bearer <token>` and legacy `X-Auth-Token` headers.
+* **🌐 Google OAuth2 Authentication:** One-tap sign-in / sign-up via Google (`POST /api/auth/google`) with automatic user profile provisioning.
+* **📧 Email OTP Password Reset:** 6-digit time-sensitive verification code dispatched via Gmail SMTP (`POST /api/auth/forgot-password` and `POST /api/auth/reset-password`).
+* **🔒 Concurrency & Stock Locks:** Pessimistic write locks (`@Lock(LockModeType.PESSIMISTIC_WRITE)`) on inventory stock, carts, and loyalty debits.
 
 ---
 
@@ -28,11 +33,11 @@ OrionCart is a hyper-local e-commerce platform designed to digitize physical nei
 
 | Layer | Technologies |
 | :--- | :--- |
-| **Frontend** | React 19, Vite, Tailwind CSS, Leaflet Interactive Location Picker, Lucide Icons |
-| **Backend** | Java 21, Spring Boot 3.2.3, Spring Data JPA, Hibernate, Apache Commons CSV |
-| **Database** | PostgreSQL (Supabase) for production / H2 database for offline local testing |
-| **Database Migration** | Flyway |
-| **Security** | BCrypt Password Hashing (spring-security-crypto), Manual Token Authentication |
+| **Frontend** | React 19, Vite, Tailwind CSS, Leaflet Interactive Maps, Lucide Icons, Google OAuth API |
+| **Backend** | Java 21, Spring Boot 3.2.3, Spring Security 6, Spring Data JPA, Hibernate, JavaMailSender, Apache Commons CSV |
+| **Database** | PostgreSQL 16 (PostGIS extension enabled) / H2 in-memory database for offline unit tests |
+| **Database Migration** | Flyway (V1 through V22) |
+| **Security & Auth** | Spring Security 6, JJWT (HMAC-SHA256), BCrypt Password Hashing, Google Token Verifier |
 
 ---
 
@@ -40,26 +45,40 @@ OrionCart is a hyper-local e-commerce platform designed to digitize physical nei
 
 ```text
 orioncart/
-├── backend/          # Spring Boot REST API (Java 21, JPA, Flyway, H2/Postgres)
+├── backend/          # Spring Boot REST API (Java 21, Spring Security, Flyway, PostGIS)
+│   ├── src/main/java/com/orioncart/backend/
+│   │   ├── config/      # MailConfig, WebConfig, SupabaseConfig
+│   │   ├── controller/  # REST API Controllers (Auth, Cart, Discovery, Delivery, etc.)
+│   │   ├── model/       # JPA Entities (User, Shop, Product, Cart, Order, etc.)
+│   │   ├── repository/  # Spring Data JPA Repositories (with PostGIS native queries)
+│   │   ├── security/    # SecurityConfig, JwtFilter, UserPrincipal, JwtUtil
+│   │   └── service/     # Business logic (Auth, Cart, Discovery, Loyalty, etc.)
+│   └── src/main/resources/db/migration/ # Flyway SQL migrations (V1 - V22)
 ├── frontend/         # React SPA (Vite, Tailwind CSS, Leaflet Maps)
+│   └── src/
+│       ├── components/  # DiscoveryMap, FulfillmentSelector, AuthModal, etc.
+│       ├── context/     # AuthContext, CartContext, LocationContext
+│       └── pages/       # Home, ShopDetailPage, CheckoutPage, ProfilePage
 ├── documents/        # Requirements, system design, and security guides
-│   ├── requirements.md
-│   ├── PROJECT_SUMMARY.md
-│   └── SECURITY_SETUP.md
-├── scripts/          # Helper scripts
-└── docker/           # Docker Compose setups for PostgreSQL
+├── phase2_records/   # Complete Phase 2 implementation logs, plans, and architectural context
+└── docker/           # Docker Compose setups for PostgreSQL + PostGIS
 ```
 
 ---
 
 ## 🚀 Quickstart Guide (Local Development)
 
-### 1. Run the Backend (Offline H2 Mode)
+### 1. Run the Backend
+Using the included Maven Wrapper (`mvnw`):
 ```powershell
 cd backend
-./run_backend_h2.ps1
+# On Windows PowerShell:
+.\mvnw spring-boot:run
+
+# Or run offline with in-memory H2:
+.\run_backend_h2.ps1
 ```
-The API server will start at `http://localhost:7070`.
+The API server starts at `http://localhost:7070`.
 
 ### 2. Run the Frontend
 ```powershell
@@ -67,28 +86,32 @@ cd frontend
 npm install
 npm run dev
 ```
-The frontend application will open at `http://localhost:5173`.
+The frontend application starts at `http://localhost:5173`.
 
 ---
 
-## 🔮 Future Roadmap (Phase 2 / Production Scaling)
+## 🗺️ Implementation Roadmap Status
 
-These features are designed as future architectural enhancements for post-MVP production deployment:
+### ✅ Completed (MVP & Phase 2 Groups 1 & 2)
+* [x] **Server-Side Cart Persistence (Item 1):** Multi-device cart sync, pessimistic lock guard, guest-to-user merge.
+* [x] **Checkout Loyalty Point Redemption (Item 2):** 20% cart total discount cap, 1 pt = ₹1, atomic debit & cancellation refund.
+* [x] **Discovery Page Map Visualization (Item 3):** Leaflet map pins, radius circle, interactive store popups.
+* [x] **Spring Security & JWT Filter Chain (Item 4):** Stateless security filter chain, role-based authorization, Google OAuth, email OTP password reset.
+* [x] **PostGIS Spatial Indexing (Item 5):** `GEOGRAPHY(Point,4326)` column, GiST index, ST_DWithin query with fallback.
 
-* [ ] **Real Payment Gateway Handoff:** Integrate Razorpay SDK & UPI webhooks for live payment processing.
-* [ ] **Live 3PL Courier Dispatch:** Connect Shiprocket Hyperlocal / Borzo REST APIs for real-time driver allocation and live GPS tracking.
-* [ ] **Spring Security & JWT Filter Chain:** Migrate from manual token checks to Spring Security with proper JWT authentication filter.
-* [ ] **Discovery Page Map Visualization:** Add interactive Leaflet map to the shop discovery page for visual shop browsing.
-* [ ] **Automated Low-Stock Push Notifications:** WebSocket-based real-time alerts when product stock drops below threshold.
-* [ ] **Checkout Loyalty Point Redemption:** Enable customers to redeem accumulated loyalty points as discounts during checkout.
-* [ ] **Server-Side Cart Persistence:** Migrate from client-side localStorage cart to server-managed cart with cross-device sync.
-* [ ] **Real-Time Order Tracking:** Live order status tracking with delivery partner GPS integration.
-* [ ] **PostGIS Spatial Database Indexing:** Upgrade spherical cosine SQL queries to PostGIS GIST indexes for ultra-high concurrency spatial searches.
+### 🔮 Remaining Roadmap (Phase 2 Groups 3 & 4)
+* [ ] **Automated Low-Stock Push Notifications (Item 6):** Spring STOMP / WebSocket alerts to shopkeepers when inventory drops below threshold.
+* [ ] **Real-Time Order Tracking (Item 7):** Live WebSocket order status updates + delivery partner simulated GPS updates.
+* [ ] **Real Payment Gateway Integration (Item 8):** Live Razorpay checkout integration, webhook signature verification, automated reconciliation.
+* [ ] **Live 3PL Courier Dispatch (Item 9):** Courier partner API dispatch (Shiprocket / Borzo), automated AWB generation, delivery handoff tracking.
 
 ---
 
 ## 📄 Documentation
 
-For detailed technical specifications and architecture summaries, refer to the `/documents` directory:
-* [documents/requirements.md](file:///c:/orioncart/documents/requirements.md) — Complete feature specifications.
-* [documents/PROJECT_SUMMARY.md](file:///c:/orioncart/documents/PROJECT_SUMMARY.md) — Architecture & build summary.
+For technical specifications, implementation logs, and guides:
+* [documents/requirements.md](file:///c:/orioncart/documents/requirements.md) — Comprehensive feature specifications.
+* [documents/PROJECT_SUMMARY.md](file:///c:/orioncart/documents/PROJECT_SUMMARY.md) — System architecture summary.
+* [documents/CHANGES_LOG.md](file:///c:/orioncart/documents/CHANGES_LOG.md) — Detailed development change log.
+* [documents/SECURITY_SETUP.md](file:///c:/orioncart/documents/SECURITY_SETUP.md) — Security setup & environment credentials guide.
+* [phase2_records/plans/phase2_master_roadmap.md](file:///c:/orioncart/phase2_records/plans/phase2_master_roadmap.md) — Phase 2 Master Roadmap.

@@ -1,57 +1,88 @@
-# orioncart — Quickstart
+# OrionCart — Quickstart Guide
 
-This document gives quick steps to run the orioncart MVP (frontend + backend) locally.
+This document gives quick steps to run OrionCart (frontend + backend) locally.
 
 ## Prerequisites
-- Java 21 (or use the bundled Maven/JDK tooling if available)
-- Node.js & npm (for frontend)
-- A Supabase/Postgres instance (optional; H2 fallback available)
+- Java 21 JDK
+- Node.js (v18+) & npm
+- PostgreSQL 16 with PostGIS extension (or use in-memory H2 mode for offline testing)
 
-## Backend (development)
-From the repository root:
+## 1. Backend (Spring Boot)
 
+Navigate to the `backend` directory:
 ```powershell
-cd e:\Project\backend
-# Use the bundled Maven for consistent builds
-..\tools\apache-maven-3.9.6\bin\mvn.cmd spring-boot:run
+cd backend
 ```
 
-If you want to run using an in-memory H2 DB (useful when Supabase is unavailable):
-
+### Running with PostgreSQL / Supabase
+Run using the included Maven Wrapper (`mvnw`):
 ```powershell
-cd e:\Project\backend
-$env:SPRING_DATASOURCE_URL='jdbc:h2:mem:testdb'
-$env:SPRING_DATASOURCE_USERNAME='sa'
-$env:SPRING_DATASOURCE_PASSWORD=''
-$env:FLYWAY_ENABLED='false'
-..\tools\apache-maven-3.9.6\bin\mvn.cmd spring-boot:run
+# Windows PowerShell:
+.\mvnw spring-boot:run
+
+# Linux / macOS / Git Bash:
+./mvnw spring-boot:run
 ```
 
-## Frontend (development)
-
+### Running Offline (H2 Mode)
+If PostgreSQL is not running locally, start with the automated H2 script:
 ```powershell
-cd e:\Project\frontend
+.\run_backend_h2.ps1
+```
+The backend starts at `http://localhost:7070`.
+
+---
+
+## 2. Frontend (React 19 + Vite)
+
+Navigate to the `frontend` directory:
+```powershell
+cd frontend
 npm install
 npm run dev
-# Open http://localhost:5173
 ```
+Open `http://localhost:5173` in your browser.
 
-## Environment variables
-The backend reads these environment variables (they override `application.properties`):
-- `SPRING_DATASOURCE_URL`
-- `SPRING_DATASOURCE_USERNAME`
-- `SPRING_DATASOURCE_PASSWORD`
-- `JWT_SECRET` (if you want to override defaults)
-- `FLYWAY_ENABLED`
+---
 
-## API endpoints (examples)
-- `GET /api/shops`
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/payments/charge` (simulate a payment and create order)
+## 3. Environment Variables
 
-## Notes
-- The `frontend` uses a Vite proxy for `/api` to the backend. If the backend port differs, update `frontend/vite.config.js` or the `server.port` in `backend/src/main/resources/application.properties`.
-- Rotate and remove any real credentials from `application.properties` before publishing this repository.
+Create a `backend/.env` file (copied from `backend/env.template`) with the following keys:
 
+| Variable | Description | Default / Example |
+| :--- | :--- | :--- |
+| `SPRING_DATASOURCE_URL` | JDBC connection string | `jdbc:postgresql://localhost:5432/postgres` |
+| `SPRING_DATASOURCE_USERNAME` | Database username | `postgres` |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | *(your DB password)* |
+| `JWT_SECRET` | 32+ byte secret key for signing JWTs | *(Base64 or secure string)* |
+| `GOOGLE_CLIENT_ID` | Google OAuth Web Client ID | `*.apps.googleusercontent.com` |
+| `MAIL_USERNAME` | Gmail / SMTP sender address | `your-email@gmail.com` |
+| `MAIL_PASSWORD` | Gmail App Password (16 chars) | `xxxx xxxx xxxx xxxx` |
+| `FLYWAY_ENABLED` | Enable automated database migrations | `true` |
 
+---
+
+## 4. Key API Endpoints
+
+### Authentication & Profile (`/api/auth`)
+- `POST /api/auth/register` — Standard email/password registration
+- `POST /api/auth/login` — Standard login returning JWT token
+- `POST /api/auth/google` — Google OAuth2 credential verification
+- `POST /api/auth/forgot-password` — Send 6-digit email OTP
+- `POST /api/auth/reset-password` — Verify OTP and set new password
+
+### Discovery & Navigation (`/api/discovery`, `/api/shops`)
+- `GET /api/discovery/shops?lat={lat}&lon={lon}&radiusKm=10` — PostGIS proximity search
+- `GET /api/shops` — List all shops with distance & delivery tiers
+- `GET /api/shops/{id}/available-slots?date={YYYY-MM-DD}` — 24/7 delivery slot generation
+
+### Server-Side Cart (`/api/cart`)
+- `GET /api/cart` — Fetch user's server-persisted cart
+- `POST /api/cart/sync` — Merge guest cart items into user's server cart
+- `POST /api/cart/item` — Add / update item in cart
+- `DELETE /api/cart/item/{productId}` — Remove item from cart
+
+### Loyalty & Coupons (`/api/loyalty`, `/api/coupons`)
+- `GET /api/loyalty/points` — User loyalty points & tier badge
+- `POST /api/loyalty/preview-redemption` — Calculate coupon-aware 20% discount cap
+- `POST /api/coupons/validate` — Validate promo code and cart conditions

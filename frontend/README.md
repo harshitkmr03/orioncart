@@ -1,16 +1,70 @@
-# React + Vite
+# 🌐 OrionCart — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Hyper-local e-commerce marketplace frontend built with React 19, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🛠️ Tech Stack & Libraries
+* **Framework:** React 19 (SPA)
+* **Build Tool:** Vite
+* **Styling:** Tailwind CSS + Vanilla CSS utilities
+* **Maps & Geo-location:** Leaflet & React-Leaflet (`DiscoveryMap.jsx`, `LocationPickerMap.jsx`)
+* **Icons:** Lucide React
+* **Authentication:** Google Identity Services (`@react-oauth/google`) + JWT Bearer token state management
+* **Routing:** React Router DOM
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Running Locally
 
-## Expanding the ESLint configuration
+```powershell
+# Install dependencies
+npm install
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Start Vite development server
+npm run dev
+```
+
+The frontend runs at `http://localhost:5173`.
+
+---
+
+## ⚙️ Development Proxy Configuration
+In `vite.config.js`, requests targeting `/api` are automatically proxied to the Spring Boot backend (`http://localhost:7070`):
+```javascript
+server: {
+  proxy: {
+    '/api': {
+      target: 'http://localhost:7070',
+      changeOrigin: true
+    }
+  }
+}
+```
+
+---
+
+## 📦 Key Component Structure
+
+```text
+frontend/src/
+├── components/
+│   ├── AuthModal.jsx             # Login, Registration, Google OAuth, and OTP Password Reset
+│   ├── DiscoveryMap.jsx          # Interactive Leaflet map with shop markers & radius overlay
+│   ├── FulfillmentSelector.jsx   # Pickup / Scheduled / Express delivery radio selection
+│   ├── LocationPickerModal.jsx   # Interactive customer coordinate pin drop modal
+│   ├── Navbar.jsx                # Search bar, location indicator, user menu, cart counter
+│   └── ProductCard.jsx           # Item cards with real-time stock and add-to-cart controls
+├── context/
+│   ├── AuthContext.jsx           # User state, token persistence, Google OAuth handler
+│   ├── CartContext.jsx           # Local/server hybrid cart syncing & checkout items
+│   └── LocationContext.jsx       # User coordinates & delivery radius management
+├── pages/
+│   ├── CheckoutPage.jsx          # Fulfillment slots, coupon inputs, loyalty redemption slider
+│   ├── Home.jsx                  # Discovery map, nearby shops list, and category filtering
+│   ├── OrderSuccessPage.jsx      # Order confirmation and tracking summary
+│   ├── ProfilePage.jsx           # Loyalty points balance, tier badges, and order history
+│   └── ShopDetailPage.jsx       # Shop catalog, product reviews, and shopkeeper contact
+└── services/
+    └── api.js                    # Axios/fetch client handling auth headers and API endpoints
+```
