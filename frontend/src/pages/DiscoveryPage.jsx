@@ -1,10 +1,12 @@
-import React, { useDeferredValue, useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Loader2, MapPin, Navigation, Search, Star, Store, X } from 'lucide-react';
 import ShopCard from '../components/ShopCard';
 import Seo from '../components/Seo';
 import RadiusSlider from '../components/ui/RadiusSlider';
 import { discoveryAPI, productAPI } from '../services/api';
+
+const DiscoveryMap = lazy(() => import('../components/DiscoveryMap'));
 
 const DEMO_LOCATION = {
     lat: 22.7196,
@@ -435,6 +437,12 @@ const DiscoveryPage = () => {
                         </button>{' '}
                         to find shops near you.
                     </div>
+                )}
+
+                {location && shops.length > 0 && (
+                    <Suspense fallback={<div className="rounded-3xl bg-slate-100 py-24 text-center text-sm text-slate-500">Loading shop map...</div>}>
+                        <DiscoveryMap shops={shops} location={location} radiusKm={radius} />
+                    </Suspense>
                 )}
 
                 {error && (

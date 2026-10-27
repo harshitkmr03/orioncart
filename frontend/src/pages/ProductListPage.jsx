@@ -44,7 +44,7 @@ const FALLBACK_PRODUCTS = [
   },
 ];
 
-export default function ProductList() {
+export default function ProductList({ onAddToCart }) {
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -165,18 +165,6 @@ export default function ProductList() {
 
     setFilteredProducts(filtered);
   }, [products, selectedCategory, sortBy, priceRange, searchTerm]);
-
-  const handleAddToCart = (product) => {
-    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    const existing = cart.find(item => item.id === product.id);
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { cart } }));
-  };
 
   const handleToggleWishlist = async (product) => {
     if (!localStorage.getItem('authToken')) {
@@ -330,7 +318,7 @@ export default function ProductList() {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  onAddToCart={handleAddToCart}
+                  onAddToCart={onAddToCart}
                   isWishlisted={wishlistIds.includes(product.id)}
                   onToggleWishlist={handleToggleWishlist}
                 />

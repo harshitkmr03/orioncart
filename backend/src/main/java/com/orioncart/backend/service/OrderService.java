@@ -32,6 +32,9 @@ public class OrderService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private CartService cartService;
+
     @org.springframework.transaction.annotation.Transactional
     public Order createOrder(Order order) {
         order.setStatus(Order.OrderStatus.PENDING);
@@ -72,6 +75,9 @@ public class OrderService {
         // Save order atomically (items are cascaded)
         Order saved = orderRepository.save(order);
         notificationService.notifyOrderPlaced(saved);
+        if (saved.getCustomer() != null && saved.getCustomer().getId() != null) {
+            cartService.clearCart(saved.getCustomer().getId());
+        }
         return saved;
     }
 
@@ -97,6 +103,11 @@ public class OrderService {
         log.info("Updating order id {} status to {}", orderId, status);
         order.setStatus(status);
         Order saved = orderRepository.save(order);
+        if (status == Order.OrderStatus.CANCELLED && previousStatus != Order.OrderStatus.CANCELLED
+                && saved.getCustomer() != null && saved.getCustomer().getId() != null
+                && saved.getLoyaltyPointsRedeemed() != null && saved.getLoyaltyPointsRedeemed() > 0) {
+            loyaltyService.refundRedeemedPoints(saved.getCustomer().getId(), saved.getId());
+        }
         if (status == Order.OrderStatus.COMPLETED && previousStatus != Order.OrderStatus.COMPLETED) {
             loyaltyService.awardForCompletedOrder(saved);
         }
@@ -105,4 +116,3 @@ public class OrderService {
         return saved;
     }
 }
-

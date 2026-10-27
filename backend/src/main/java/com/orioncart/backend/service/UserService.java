@@ -17,6 +17,9 @@ public class UserService {
     @Autowired
     private LoyaltyService loyaltyService;
 
+    @Autowired(required = false)
+    private EmailService emailService;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public User registerUser(User user) {
@@ -46,6 +49,13 @@ public class UserService {
         User saved = userRepository.save(user);
         loyaltyService.initializeUserLoyalty(saved);
         loyaltyService.createReferralForNewUser(saved, user.getReferredByCode());
+
+        if (emailService != null) {
+            try {
+                emailService.sendWelcomeEmail(saved.getEmail(), saved.getName());
+            } catch (Exception ignored) {}
+        }
+
         return saved;
     }
 

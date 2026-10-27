@@ -4,6 +4,7 @@ import com.orioncart.backend.model.LoyaltyTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface LoyaltyTransactionRepository extends JpaRepository<LoyaltyTransaction, Long> {
     List<LoyaltyTransaction> findByUser_IdOrderByCreatedAtDesc(Long userId);
@@ -11,5 +12,9 @@ public interface LoyaltyTransactionRepository extends JpaRepository<LoyaltyTrans
     boolean existsByUser_IdAndTransactionTypeAndReferenceId(Long userId, String transactionType, Long referenceId);
 
     boolean existsByUser_IdAndTransactionType(Long userId, String transactionType);
-}
 
+    Optional<LoyaltyTransaction> findByUser_IdAndTransactionTypeAndReferenceId(
+            Long userId, String transactionType, Long referenceId);
+
+    boolean existsByReversedTxIdAndIsReversalTrue(Long reversedTxId);
+}

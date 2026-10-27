@@ -1,14 +1,18 @@
 package com.orioncart.backend.controller;
 
+import com.orioncart.backend.dto.LoyaltyRedemptionPreviewRequest;
 import com.orioncart.backend.service.AuthService;
 import com.orioncart.backend.service.LoyaltyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.Map;
 
 @RestController
+@Validated
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
 public class LoyaltyController {
@@ -18,6 +22,19 @@ public class LoyaltyController {
 
     @Autowired
     private LoyaltyService loyaltyService;
+
+    @PostMapping("/loyalty/preview-redemption")
+    public ResponseEntity<?> previewRedemption(
+            @RequestHeader(value = "X-Auth-Token", required = false) String token,
+            @Valid @RequestBody LoyaltyRedemptionPreviewRequest request) {
+        if (token == null) {
+            return ResponseEntity.status(401).body(Map.of("message", "Missing authentication token"));
+        }
+
+        return authService.getUserIdForToken(token)
+                .<ResponseEntity<?>>map(userId -> ResponseEntity.ok(loyaltyService.previewRedemption(userId, request)))
+                .orElseGet(() -> ResponseEntity.status(401).body(Map.of("message", "Invalid or expired token")));
+    }
 
     @GetMapping("/loyalty/balance")
     public ResponseEntity<?> getBalance(@RequestHeader(value = "X-Auth-Token", required = false) String token) {
@@ -66,4 +83,3 @@ public class LoyaltyController {
                 .orElseGet(() -> ResponseEntity.status(401).body(Map.of("message", "Invalid or expired token")));
     }
 }
-
