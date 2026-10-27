@@ -128,7 +128,11 @@ public class PaymentController {
 
     @PostMapping("/cod")
     public ResponseEntity<?> codOrder(@RequestHeader(value = "X-Auth-Token", required = false) String token,
+                                      @RequestHeader(value = "Authorization", required = false) String authHeader,
                                       @RequestBody CodPaymentRequest req) {
+        if (token == null && authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7).trim();
+        }
         if (token == null) {
             return ResponseEntity.status(401).body(Map.of("message", "Missing authentication token"));
         }
@@ -154,7 +158,8 @@ public class PaymentController {
                         return ResponseEntity.ok(orderMapper.toDTO(created));
                     } catch (Exception ex) {
                         log.error("COD Order failed for user {}: {}", user.getId(), ex.getMessage(), ex);
-                        return ResponseEntity.status(500).body(Map.of("message", "COD order processing failed", "detail", ex.getMessage()));
+                        String detail = ex.getMessage() != null ? ex.getMessage() : ex.toString();
+                        return ResponseEntity.status(500).body(Map.of("message", "COD order processing failed", "detail", detail));
                     }
                 }).orElseGet(() -> ResponseEntity.status(401).body(Map.of("message", "Invalid or expired token")));
     }

@@ -492,7 +492,10 @@ export const paymentAPI = {
     codOrder: async (codPayload) => {
         const token = localStorage.getItem('authToken');
         const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['X-Auth-Token'] = token;
+        if (token) {
+            headers['X-Auth-Token'] = token;
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
         const response = await fetch(`${API_BASE_URL}/payments/cod`, {
             method: 'POST',
@@ -503,7 +506,9 @@ export const paymentAPI = {
         if (!response.ok) {
             let text = await response.text();
             try { text = JSON.parse(text); } catch (e) { }
-            const msg = (text && text.message) ? text.message : (typeof text === 'string' ? text : 'COD order failed');
+            const msg = (text && text.detail)
+                ? `${text.message}: ${text.detail}`
+                : (text && text.message) ? text.message : (typeof text === 'string' ? text : 'COD order failed');
             throw new Error(msg);
         }
         return response.json();
