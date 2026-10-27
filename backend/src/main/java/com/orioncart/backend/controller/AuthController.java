@@ -54,6 +54,18 @@ public class AuthController {
         return ResponseEntity.status(401).build();
     }
 
+    @Autowired
+    private com.orioncart.backend.service.PasswordResetService passwordResetService;
+
+    @Autowired
+    private com.orioncart.backend.service.GoogleAuthService googleAuthService;
+
+    @PostMapping("/google")
+    public ResponseEntity<LoginResponse> googleLogin(@RequestBody com.orioncart.backend.dto.GoogleAuthRequest request) {
+        LoginResponse resp = googleAuthService.authenticateWithGoogle(request.getCredential());
+        return ResponseEntity.ok(resp);
+    }
+
     @PutMapping("/become-seller/{id}")
     public ResponseEntity<?> becomeSeller(@PathVariable("id") Long id,
                                           @RequestHeader(value = "X-Auth-Token", required = false) String token) {
@@ -67,6 +79,30 @@ public class AuthController {
 
         Optional<User> updated = userService.becomeSeller(id);
         return updated.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@jakarta.validation.Valid @RequestBody com.orioncart.backend.dto.ForgotPasswordRequest request) {
+        return ResponseEntity.ok(passwordResetService.sendResetOtp(request.getEmail()));
+    }
+
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOtp(@jakarta.validation.Valid @RequestBody com.orioncart.backend.dto.VerifyOtpRequest request) {
+        return ResponseEntity.ok(passwordResetService.verifyOtp(request.getEmail(), request.getOtp()));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@jakarta.validation.Valid @RequestBody com.orioncart.backend.dto.ResetPasswordRequest request) {
+        return ResponseEntity.ok(passwordResetService.resetPassword(request.getEmail(), request.getOtp(), request.getNewPassword()));
+    }
+
+    @Autowired
+    private com.orioncart.backend.service.EmailService emailService;
+
+    @GetMapping("/test-mail")
+    public ResponseEntity<?> testMail(@RequestParam(value = "to", defaultValue = "test@example.com") String to) {
+        boolean sent = emailService.sendPasswordResetOtp(to, "882341", "OrionCart User");
+        return ResponseEntity.ok(java.util.Map.of("sent", sent, "to", to));
     }
 }
 
