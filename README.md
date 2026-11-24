@@ -38,6 +38,7 @@ OrionCart is a hyper-local e-commerce platform designed to digitize physical nei
 | **Database** | PostgreSQL 16 (PostGIS extension enabled) / H2 in-memory database for offline unit tests |
 | **Database Migration** | Flyway (V1 through V22) |
 | **Security & Auth** | Spring Security 6, JJWT (HMAC-SHA256), BCrypt Password Hashing, Google Token Verifier |
+| **Testing** | JUnit 5 (Jupiter), Mockito, Spring Boot Test (`MockMvc`, `@DataJpaTest`), Playwright E2E |
 
 ---
 
@@ -87,6 +88,34 @@ npm install
 npm run dev
 ```
 The frontend application starts at `http://localhost:5173`.
+
+---
+
+## 🧪 Unit & Integration Testing (JUnit 5)
+
+The backend includes **JUnit 5 (JUnit Jupiter)** unit and integration tests configured via `spring-boot-starter-test`, **Mockito**, `@DataJpaTest`, and `MockMvc` running against an H2 in-memory database.
+
+### Backend Test Suites (`backend/src/test/java/com/orioncart/backend/`)
+* **Service Unit Tests (JUnit 5 + Mockito):**
+  * `service/DeliveryServiceTest.java` — Pickup slot generation and express delivery serviceability.
+  * `service/DiscoveryServiceTest.java` — Nearby shop discovery, product search, and rating sorting.
+  * `service/CartServiceTest.java` — Server-side cart unit tests.
+  * `service/LoyaltyServiceTest.java` — Loyalty service unit tests.
+* **JPA & Migration Tests:**
+  * `service/CartServiceJpaTest.java` — `@DataJpaTest` persistence verification for cart operations.
+  * `migration/Phase2MigrationTest.java` — Phase 2 database migration tests.
+* **Controller & Security Integration Tests (`@SpringBootTest` + `MockMvc`):**
+  * `controller/CartControllerIntegrationTest.java` — Cart controller API integration tests.
+  * `controller/PasswordResetIntegrationTest.java` — Password reset integration tests.
+  * `controller/SecurityAuthenticationIntegrationTest.java` — Security and JWT authentication integration tests.
+
+### Run JUnit Tests
+```powershell
+cd backend
+.\mvnw test
+# Or using locally installed Maven:
+mvn test
+```
 
 ---
 
