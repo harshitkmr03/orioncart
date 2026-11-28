@@ -1,0 +1,7 @@
+.env
+.env.*
+.git
+target
+*.log
+sample_data.sql
+src/main/resources/application.properties

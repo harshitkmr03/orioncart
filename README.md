@@ -136,6 +136,24 @@ mvn test
 
 ---
 
+## Docker images
+
+The GitHub Actions workflow builds and publishes the frontend and backend to GitHub Container Registry:
+
+- `ghcr.io/harshitkmr03/orioncart-frontend:latest` serves the React app on port 80 and forwards `/api` requests to a backend container named `backend`.
+- `ghcr.io/harshitkmr03/orioncart-backend:latest` serves the API on port 7070 and requires a PostgreSQL/PostGIS database plus the backend environment variables described in `backend/env.template`.
+
+To enable Google Maps and Google sign-in in the published frontend, add repository Actions variables named `VITE_GOOGLE_MAPS_API_KEY` and `VITE_GOOGLE_CLIENT_ID` before running the workflow. These integrations remain unconfigured if the variables are unset.
+
+Pull the images into Docker Desktop with:
+
+```powershell
+docker pull ghcr.io/harshitkmr03/orioncart-frontend:latest
+docker pull ghcr.io/harshitkmr03/orioncart-backend:latest
+```
+
+In GitHub, run **Actions → Publish OrionCart images → Run workflow** to publish updated images.
+
 ## 📄 Documentation
 
 For technical specifications, implementation logs, and guides:
