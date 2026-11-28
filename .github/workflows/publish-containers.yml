@@ -1,6 +1,13 @@
 name: Publish OrionCart images
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/workflows/publish-containers.yml"
   workflow_dispatch:
 
 permissions:
