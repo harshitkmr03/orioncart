@@ -154,6 +154,8 @@ docker pull ghcr.io/harshitkmr03/orioncart-backend:latest
 
 In GitHub, run **Actions → Publish OrionCart images → Run workflow** to publish updated images.
 
+The backend CI workflow runs Maven tests, and the frontend CI workflow installs dependencies, runs tests, and builds the app on relevant pushes and pull requests. Both can also be started manually from the **Actions** tab.
+
 ## 📄 Documentation
 
 For technical specifications, implementation logs, and guides:
